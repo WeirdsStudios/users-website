@@ -328,7 +328,10 @@ export default function MotorClient() {
                 disabled={sending}
                 className="w-full bg-[#4cfc0f] text-black font-bold px-6 py-3.5 text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
               >
-                {sending ? "Enviando…" : "Enviar y agendar revisión"}
+                {/* No dice "agendar": no hay calendario ni confirmación de
+                    horario en este flujo. Lo que ocurre de verdad es que el
+                    lead llega al equipo y alguien escribe. */}
+                {sending ? "Enviando…" : "Enviar y que me contacten"}
               </button>
               <p className="font-mono text-[10px] text-[#8A8A8A] leading-relaxed">
                 Tratamos tus datos según nuestro{" "}

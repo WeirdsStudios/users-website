@@ -10,7 +10,14 @@
  *  · /sistemas-para-negocios — misma intención que software-a-medida.
  *  · /sistemas-de-reservas   — sin evidencia suficiente para sostener que
  *    somos especialistas en motores de reservación completos.
+ *
+ * PRECIOS: nunca se escriben a mano aquí. El precio de entrada vive en
+ * `siteConfig.pricing` y se interpola, porque una metadescription con la cifra
+ * copiada se queda desactualizada en silencio: no la ve nadie del equipo al
+ * navegar el sitio, solo Google.
  */
+
+import { siteConfig } from "@/lib/site-config"
 
 export type SolutionArea = "presencia" | "operacion" | "clientes"
 
@@ -58,8 +65,7 @@ export const SOLUTIONS: Solution[] = [
       "Es la puerta de entrada más buscada y la única que responde «quiero una página». Las demás páginas asumen que el visitante ya sabe que necesita software.",
     cases: ["greek-gym", "las-frescas"],
     metaTitle: "Desarrollo web para PyMEs en México | USERS",
-    metaDescription:
-      "Desarrollo web para negocios que necesitan que su sitio explique, genere contacto y pueda conectarse después con sus sistemas. Proyectos desde $11,900 MXN.",
+    metaDescription: `Desarrollo web para negocios que necesitan que su sitio explique, genere contacto y pueda conectarse después con sus sistemas. Proyectos desde ${siteConfig.pricing.startingPriceLabel}.`,
   },
   {
     slug: "software-a-medida",

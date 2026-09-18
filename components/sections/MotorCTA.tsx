@@ -6,8 +6,15 @@ import Image from "next/image"
  * así que esta sección tiene peso de bloque principal (fondo oscuro, ancho
  * completo) en vez de ser una card más.
  *
- * Cada punto describe algo que el flujo de /analisis realmente entrega —
- * diagnóstico, estimado por módulo y agenda — sin prometer de más.
+ * Cada punto describe algo que el flujo de /analisis realmente entrega.
+ *
+ * Lo que el motor devuelve de verdad (ver `lib/motor/diagnose.ts`): prioridades
+ * por dimensión, qué construir primero, qué puede esperar, y un punto de partida
+ * de inversión con la nota de que el alcance exacto se cotiza aparte.
+ *
+ * Lo que NO devuelve, y por eso ya no se anuncia: un desglose de inversión por
+ * módulo, un tiempo aproximado de entrega y una agenda. Ninguna de las tres
+ * existe en el flujo; se prometían desde una versión anterior del motor.
  */
 const steps = [
   {
@@ -22,8 +29,8 @@ const steps = [
   },
   {
     n: "03",
-    title: "Y un estimado real",
-    body: "Rango de inversión desglosado por módulo y tiempo aproximado de entrega.",
+    title: "Y por dónde empezar",
+    body: "Qué construir en una primera etapa, qué dejar para después y desde dónde parte la inversión.",
   },
 ]
 
@@ -71,11 +78,16 @@ export default function MotorCTA() {
               </Link>
               {/* "Unos 8 minutos" no está medido con nadie: era una
                   estimación escrita a mano. Lo que sí es verificable es la
-                  estructura —6 pasos, 20 preguntas, casi todas de opción— y
-                  eso es lo que se promete. Cuando haya datos reales de
-                  finalización se puede volver a poner un número. */}
+                  estructura —5 pasos, 12 preguntas, todas menos una de
+                  opción— y eso es lo que se promete. Cuando haya datos reales
+                  de finalización se puede volver a poner un número.
+
+                  Las cifras salen de `lib/motor/questions.ts`: STEPS tiene 5
+                  entradas y QUESTIONS 12, de las cuales solo `businessName` es
+                  texto libre. Antes decía 6 pasos y 20 preguntas, que además de
+                  ser falso anunciaba más fricción de la que hay. */}
               <p className="text-xs text-[#8A8A8A] mt-4">
-                6 pasos · 20 preguntas, casi todas de opción múltiple · sin
+                5 pasos · 12 preguntas, todas menos una de opción múltiple · sin
                 registro ni tarjeta
               </p>
             </div>

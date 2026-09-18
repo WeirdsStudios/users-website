@@ -74,9 +74,11 @@ ${pricing.maintenanceFromLabel}.
 
 ## Motor de Análisis de Negocio
 
-Herramienta gratuita de diagnóstico y cotización en 6 pasos, disponible en
-${url}/analisis. Genera un reporte con diagnóstico, estimado de inversión por
-módulo y permite agendar una sesión. No requiere registro ni tarjeta.
+Herramienta gratuita de diagnóstico en 5 pasos y 12 preguntas, disponible en
+${url}/analisis. Devuelve un diagnóstico con prioridades por área, qué conviene
+construir primero, qué puede esperar y desde dónde parte la inversión. No cotiza
+el proyecto: el alcance exacto se revisa después con una persona. No requiere
+registro ni tarjeta para ver el resultado.
 
 ## Proceso de trabajo
 

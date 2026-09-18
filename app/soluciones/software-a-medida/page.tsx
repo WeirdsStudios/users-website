@@ -240,7 +240,9 @@ export default function SoftwareAMedidaPage() {
                   <Link href="/analisis" className="text-[#4cfc0f] hover:underline underline-offset-4">
                     Motor de Análisis
                   </Link>{" "}
-                  te da un rango desglosado por módulo con tus datos, gratis.
+                  te dice qué conviene construir primero y desde dónde parte la
+                  inversión, gratis. El alcance exacto lo cotizamos después de
+                  revisarlo contigo.
                 </>
               ),
             },
