@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { defaultOgImage } from "@/lib/site-config"
+import { siteConfig, defaultOgImage } from "@/lib/site-config"
 import type { Metadata } from "next"
 import {
   Header,
@@ -57,12 +57,16 @@ export default function SoftwareAMedidaPage() {
       <main className="bg-[#0A0A0A] text-white">
         <SolutionHeader
           solution={solution}
-          eyebrow="Operación"
-          h1="Software a medida para la forma real en que opera tu negocio"
-          lede="Sistemas administrativos, herramientas internas y automatizaciones construidas alrededor de tu proceso — no un producto genérico al que tengas que adaptar la operación."
+          eyebrow="App a medida"
+          h1="Aplicaciones web construidas alrededor de cómo funciona tu negocio"
+          lede="Cuando tu proceso es el producto y ninguna herramienta del mercado lo respeta sin adaptaciones incómodas. Desarrollo de software a medida: aplicaciones web con cuentas, roles y flujos propios, construidas alrededor de tu operación y no al revés."
           proof={
             <p className="font-mono text-[11px] text-[#8A8A8A] leading-relaxed">
-              Construido y entregado ·{" "}
+              Desde{" "}
+              <span className="text-white">
+                {siteConfig.pricing.offerLabel("app-a-medida")}
+              </span>{" "}
+              · construido y entregado ·{" "}
               <Link
                 href="/proyectos/greek-gym"
                 className="text-[#4cfc0f] hover:underline underline-offset-4 py-1.5 inline-block"
@@ -136,7 +140,7 @@ export default function SoftwareAMedidaPage() {
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
               <h2 id="que-software" className="text-xl lg:text-2xl font-bold tracking-tight">
-                Qué tipo de sistemas construimos
+                Qué tipo de aplicaciones construimos
               </h2>
               <p className="text-[#8A8A8A] text-sm mt-3 leading-relaxed">
                 Casi nunca es una sola cosa: suele ser una combinación según
@@ -227,16 +231,24 @@ export default function SoftwareAMedidaPage() {
         <SolutionFaq
           items={[
             {
-              q: "¿Cómo sé si necesito software a medida?",
+              q: "¿Cómo sé si necesito una app a medida?",
               a: "La señal más clara es que alguien de tu equipo esté haciendo trabajo manual repetido porque la herramienta actual no hace algo, o que tengas información importante en dos lugares que no coinciden. Si nada de eso te pasa, probablemente todavía no lo necesitas.",
             },
             {
-              q: "¿Cuánto cuesta desarrollar un sistema?",
+              q: "¿Es una app de App Store o Google Play?",
+              a: "No. Construimos aplicaciones web: se abren desde el navegador y funcionan igual en computadora, tablet y celular, sin que nadie tenga que descargar ni actualizar nada. Si conviene, se puede instalar en la pantalla de inicio del teléfono y abrirse como cualquier otra app (PWA). Esa decisión la tomamos por el uso real del negocio, no por moda.",
+            },
+            {
+              q: "¿Cuánto cuesta una app a medida?",
               a: (
                 <>
-                  Depende del alcance y no tenemos un precio de lista honesto que
-                  darte: un panel sencillo y un sistema con roles, cobros e
-                  inventario no se parecen. El{" "}
+                  Parte de {siteConfig.pricing.offerLabel("app-a-medida")}, y ese
+                  es un punto de partida, no un precio de lista: un panel
+                  sencillo y una aplicación con roles, cobros e inventario no se
+                  parecen. Si lo que necesitas es una capa de operación sobre tu
+                  sitio más que una aplicación construida desde tu proceso, el
+                  nivel de Plataforma empieza en{" "}
+                  {siteConfig.pricing.offerLabel("plataforma")}. El{" "}
                   <Link href="/analisis" className="text-[#4cfc0f] hover:underline underline-offset-4">
                     Motor de Análisis
                   </Link>{" "}
@@ -254,14 +266,14 @@ export default function SoftwareAMedidaPage() {
               q: "¿Qué pasa después del lanzamiento?",
               a: (
                 <>
-                  Un sistema en uso necesita mantenimiento: infraestructura,
+                  Una aplicación en uso necesita mantenimiento: infraestructura,
                   respaldos, actualizaciones y ajustes conforme el negocio
                   cambia. Incluimos soporte el primer mes y después es opcional
                   —{" "}
-                  <Link href="/#seguimiento" className="text-[#4cfc0f] hover:underline underline-offset-4">
+                  <Link href="/#soporte" className="text-[#4cfc0f] hover:underline underline-offset-4">
                     puedes ver los planes de seguimiento
                   </Link>
-                  .
+                  . {siteConfig.infrastructure.platformNote}
                 </>
               ),
             },

@@ -90,7 +90,9 @@ export const KB_CATEGORIES: KbCategory[] = [
   },
 ]
 
-const PRICE = siteConfig.pricing.startingPriceLabel
+const WEB_ACTIVA = siteConfig.pricing.offerLabel("web-activa")
+const PLATAFORMA = siteConfig.pricing.offerLabel("plataforma")
+const APP = siteConfig.pricing.offerLabel("app-a-medida")
 const SITE_PLAN = siteConfig.maintenancePlans.find((p) => p.id === "sitio")!
 const SYS_PLAN = siteConfig.maintenancePlans.find((p) => p.id === "sistemas")!
 
@@ -146,9 +148,9 @@ export const KB_ENTRIES: KbEntry[] = [
     id: "cuanto-cuesta-proyecto",
     category: "empezar",
     question: "¿Cuánto cuesta un proyecto?",
-    answer: `Los proyectos comienzan desde ${PRICE}. Esa cifra es un punto de entrada, no el costo de cualquier desarrollo: una landing y un sistema con roles y cobros no se parecen. El precio final depende del contenido, las funcionalidades y las integraciones.`,
+    answer: `Depende del nivel. Una Web Activa —sitio, una herramienta funcional y tu panel para administrarla— parte de ${WEB_ACTIVA}. Una Plataforma, cuando además hace falta una capa privada con cuentas para tu equipo o tus clientes, parte de ${PLATAFORMA}. Una App a medida, construida alrededor de tu proceso, parte de ${APP}. Son puntos de partida, no paquetes cerrados: el alcance define la cotización.`,
     mode: "GUIDED",
-    tags: ["precio", "costo", "cuánto cuesta", "presupuesto", "tarifa", "página web", "sitio web"],
+    tags: ["precio", "costo", "cuánto cuesta", "presupuesto", "tarifa", "página web", "sitio web", "web activa", "plataforma", "app a medida", "niveles"],
     related: [
       { label: "Obtener un estimado", href: "/analisis" },
       { label: "Desarrollo web", href: "/soluciones/desarrollo-web" },
@@ -254,7 +256,7 @@ export const KB_ENTRIES: KbEntry[] = [
       "Es el mantenimiento después del lanzamiento. Un proyecto publicado necesita hosting, dominio activo, respaldos y actualizaciones de seguridad; si además es un sistema con usuarios y datos, necesita monitoreo. Todos los proyectos incluyen soporte el primer mes; después el seguimiento es opcional y sin contrato forzoso.",
     mode: "INFO",
     tags: ["mantenimiento", "seguimiento", "soporte", "después", "mensualidad", "qué cubre", "pago mensual", "qué incluye al mes"],
-    related: [{ label: "Ver planes", href: "/#seguimiento" }],
+    related: [{ label: "Ver planes", href: "/#soporte" }],
   },
   {
     id: "plan-sitio",
@@ -263,7 +265,7 @@ export const KB_ENTRIES: KbEntry[] = [
     answer: `${SITE_PLAN.forWhat}. Cuesta $${SITE_PLAN.price.toLocaleString("en-US")} ${SITE_PLAN.priceNote} e incluye: ${SITE_PLAN.features.join(", ").toLowerCase()}.`,
     mode: "INFO",
     tags: ["plan sitio", "mantenimiento web", "399", "hosting"],
-    related: [{ label: "Ver planes", href: "/#seguimiento" }],
+    related: [{ label: "Ver planes", href: "/#soporte" }],
   },
   {
     id: "plan-sistemas",
@@ -275,14 +277,24 @@ export const KB_ENTRIES: KbEntry[] = [
     related: [{ label: "Cotizar seguimiento", href: "/analisis" }],
   },
   {
+    id: "panel-de-administracion",
+    category: "empezar",
+    question: "¿Puedo administrar el sitio yo mismo?",
+    answer:
+      "Sí. Toda Web Activa incluye tu panel: ahí ves las solicitudes que entran por el sitio, administras la herramienta que se incluyó y editas el contenido clave —los textos y secciones que de verdad cambian, definidos contigo al arrancar—, además de consultar la actividad del sitio. No es un editor de cada elemento de cada página: es el control de lo que un negocio necesita mover sin depender de nosotros.",
+    mode: "GUIDED",
+    tags: ["panel", "administrar", "editar", "cambios", "contenido", "yo mismo", "autonomía", "control"],
+    related: [{ label: "Desarrollo web", href: "/soluciones/desarrollo-web" }],
+  },
+  {
     id: "hosting-y-dominio",
     category: "despues",
     question: "¿Quién paga el hosting y el dominio?",
     answer:
-      "Están incluidos en los planes de seguimiento. Si no contratas un plan, el hosting y el dominio quedan a tu cargo y hay que renovarlos cada año directamente con el proveedor — si vencen, el sitio deja de estar en línea.",
+      `Tu Web Activa incluye dominio y hosting el primer año. Después eliges: seguir con el plan ${SITE_PLAN.name} (${SITE_PLAN.price.toLocaleString("en-US")} ${SITE_PLAN.priceNote}) y que USERS se encargue, o poner el dominio y el hosting a tu nombre y pagarlos directo. El sitio no se apaga por no contratar el plan: solo alguien tiene que cubrir esa infraestructura.`,
     mode: "GUIDED",
-    tags: ["hosting", "dominio", "renovación", "quién paga", "anual"],
-    related: [{ label: "Ver planes", href: "/#seguimiento" }],
+    tags: ["hosting", "dominio", "renovación", "quién paga", "anual", "primer año", "infraestructura", "a mi nombre", "queda", "propiedad", "de quién es"],
+    related: [{ label: "Ver planes", href: "/#soporte" }],
   },
   {
     id: "sin-plan-de-seguimiento",
@@ -353,7 +365,7 @@ export const KB_ENTRIES: KbEntry[] = [
     tags: ["freelance", "freelancer", "independiente", "mas barato", "barato", "por qué ustedes", "comparación", "precio alto", "caro"],
     related: [
       { label: "Cómo trabajamos", href: "/#como-trabajamos" },
-      { label: "Ver planes de seguimiento", href: "/#seguimiento" },
+      { label: "Ver planes de seguimiento", href: "/#soporte" },
     ],
   },
   {
@@ -455,7 +467,7 @@ export const KB_ENTRIES: KbEntry[] = [
     answer:
       "Requiere revisión. Es un cambio delicado: mal hecho puede dejar el sitio fuera de línea o afectar tu posicionamiento y tu correo. Dinos qué dominio quieres usar y si ya lo tienes contratado, y lo planeamos.",
     mode: "SPECIALIST",
-    tags: ["dominio", "url", "cambiar dirección", "dns", "comprar dominio"],
+    tags: ["dominio", "url", "cambiar dirección", "dns", "comprar dominio", "moverme", "mudar", "otro dominio", "cambiar de dominio"],
   },
   {
     id: "ayuda-con-correo",

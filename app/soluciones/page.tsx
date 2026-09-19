@@ -64,6 +64,27 @@ export default function SolucionesPage() {
               Cinco formas de resolver un problema concreto. Empieza por la que
               se parezca más a lo que te está costando trabajo hoy.
             </p>
+
+            {/* La escalera, para que el visitante sitúe el precio antes de
+                entrar a una solución concreta. Los niveles viven en
+                siteConfig.offers; aquí no se escribe ninguna cifra. */}
+            <ul className="flex flex-wrap gap-2 mt-6">
+              {siteConfig.offers.map((offer) => (
+                <li
+                  key={offer.id}
+                  className="border border-[#242424] bg-[#0E0E0E] px-3 py-2 flex items-baseline gap-2"
+                >
+                  <span className="text-sm font-semibold text-white">{offer.name}</span>
+                  <span className="font-mono text-[11px] text-[#8A8A8A]">
+                    desde {siteConfig.pricing.offerLabel(offer.id)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-[#8A8A8A] text-[13px] mt-3 max-w-2xl leading-relaxed">
+              Puntos de partida, no paquetes cerrados: el alcance define la
+              cotización.
+            </p>
           </div>
         </header>
 
@@ -106,6 +127,17 @@ export default function SolucionesPage() {
                             <p className="text-[#B0B0B0] text-sm mt-2.5 leading-relaxed max-w-xl">
                               {solution.teaser}
                             </p>
+                            {/* Solo cuando el nivel es previsible. Donde el
+                                alcance decide, no se insinúa uno. */}
+                            {solution.startsAt && (
+                              <p className="font-mono text-[11px] text-[#8A8A8A] mt-3">
+                                Suele partir de{" "}
+                                <span className="text-white">
+                                  {siteConfig.offers.find((o) => o.id === solution.startsAt)?.name}
+                                </span>
+                                , desde {siteConfig.pricing.offerLabel(solution.startsAt)}
+                              </p>
+                            )}
                           </div>
                           <span className="text-[#4cfc0f] shrink-0 mt-1" aria-hidden="true">→</span>
                         </div>

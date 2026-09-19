@@ -46,6 +46,25 @@ export default function ProductosUsers() {
               problemas una y otra vez. Ahí deja de tener sentido construir
               desde cero cada vez.
             </p>
+
+            {/* La progresión en una línea. Es lo que separa a USERS de una
+                agencia: el trabajo a medida no es el techo, es de dónde salen
+                los productos. No se anuncia ningún producto futuro — el único
+                que existe hoy es el que está abajo, y está en desarrollo. */}
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5 mt-5 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.12em]">
+              {["Web Activa", "Plataforma", "App a medida", "Producto USERS"].map(
+                (paso, i, arr) => (
+                  <li key={paso} className="flex items-center gap-2">
+                    <span className={i === arr.length - 1 ? "text-[#4cfc0f]" : "text-[#8A8A8A]"}>
+                      {paso}
+                    </span>
+                    {i < arr.length - 1 && (
+                      <span className="text-[#3A3A3A]" aria-hidden="true">→</span>
+                    )}
+                  </li>
+                )
+              )}
+            </ol>
           </div>
           <Link
             href="/productos"

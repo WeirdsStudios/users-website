@@ -59,7 +59,7 @@ export default function OGImage() {
               fontWeight: "bold",
             }}
           >
-            {`Proyectos desde ${siteConfig.pricing.startingPriceLabel}`}
+            {`Web Activa desde ${siteConfig.pricing.startingPriceLabel}`}
           </div>
           <div style={{ color: "#666", fontSize: "14px" }}>
             {`${siteConfig.contact.city} · ${siteConfig.contact.email}`}

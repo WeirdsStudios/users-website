@@ -37,17 +37,17 @@ export default function Hero() {
           <div className="lg:col-span-5">
             <span className="inline-flex items-center gap-2 font-mono text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-[#8A8A8A] border border-[#252525] px-2.5 py-1.5">
               <span className="w-1.5 h-1.5 bg-[#4cfc0f]" aria-hidden="true" />
-              Software y web · PyMEs mexicanas
+              Web, plataformas y apps · Negocios mexicanos
             </span>
 
             <h1 className="text-[1.85rem] leading-[1.12] sm:text-[2.6rem] lg:text-[3rem] xl:text-[3.4rem] font-bold text-white mt-5 lg:mt-6 text-balance tracking-tight">
-              Desarrollo web y software para negocios que quieren{" "}
-              <span className="text-[#4cfc0f]">vender y operar mejor</span>.
+              Tecnología web que{" "}
+              <span className="text-[#4cfc0f]">trabaja para tu negocio</span>.
             </h1>
 
             <p className="text-[#9E9E9E] text-[15px] sm:text-base lg:text-lg mt-4 lg:mt-6 max-w-xl leading-relaxed">
-              Creamos tu presencia digital, construimos los sistemas con los que
-              operas por dentro y conectamos a tus clientes con tu negocio.
+              No solo un sitio que se ve bien: una web que resuelve algo para
+              tus clientes y te deja un panel para administrarla.
             </p>
 
             {/* CTAs — a ancho completo en móvil */}
@@ -69,12 +69,17 @@ export default function Hero() {
               </a>
             </div>
 
+            {/* El precio se queda en el primer viewport a propósito: para el
+                negocio al que le hablamos, saber que se puede empezar con una
+                cifra entendible es una señal de acceso, no de barato. Lo que
+                sí tiene que quedar claro en la misma línea es que arriba de
+                Web Activa el precio depende del alcance. */}
             <p className="text-[13px] sm:text-sm text-[#8A8A8A] mt-5 lg:mt-6 max-w-md leading-relaxed flex flex-wrap items-baseline gap-x-2">
               <span className="font-mono text-white text-[13px] sm:text-sm">
-                Desde {siteConfig.pricing.startingPriceLabel}
+                Web Activa desde {siteConfig.pricing.startingPriceLabel}
               </span>
               <span className="text-[#8A8A8A]" aria-hidden="true">|</span>
-              <span>los sistemas a medida se cotizan por alcance</span>
+              <span>plataformas y apps según alcance</span>
             </p>
           </div>
 

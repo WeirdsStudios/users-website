@@ -182,7 +182,7 @@ export default function Footer() {
               Preferencias de cookies
             </ConsentPreferencesLink>
             <p className="font-mono text-[11px] text-[#8A8A8A]">
-              Proyectos desde {siteConfig.pricing.startingPriceLabel}
+              Web Activa desde {siteConfig.pricing.startingPriceLabel}
             </p>
           </div>
         </div>

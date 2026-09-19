@@ -15,7 +15,7 @@ import { PROJECTS } from "@/lib/projects"
 export const dynamic = "force-static"
 
 function buildLlmsTxt(): string {
-  const { name, url, description, contact, pricing, products } = siteConfig
+  const { name, url, description, contact, pricing, products, offers } = siteConfig
 
   const solutionLines = SOLUTIONS.map(
     (s) => `- ${s.name} (${url}/soluciones/${s.slug}): ${s.teaser}`
@@ -25,6 +25,13 @@ function buildLlmsTxt(): string {
     const where = p.location ? `, ${p.location}` : ""
     return `- ${p.name} (${url}/proyectos/${p.slug}) — ${p.industry}${where}. ${p.built}. ${p.summary}`
   }).join("\n")
+
+  const offerLines = offers
+    .map(
+      (o) =>
+        `- ${o.name} — desde ${pricing.offerLabel(o.id)}. ${o.forWhom} ${o.notIncluded}`
+    )
+    .join("\n")
 
   const productLines = products
     .map((p) => {
@@ -61,16 +68,29 @@ Software especializado desarrollado por ${name}, distinto del trabajo a medida.
 
 ${productLines}
 
-## Precio
+## Cómo se compone una solución USERS
 
-Los proyectos comienzan desde ${pricing.startingPriceLabel}.
+Todo proyecto combina tres capas: presencia (lo que ve el cliente), función
+(algo útil que puede hacer ahí mismo) y control (el panel desde el que el
+negocio lo administra). El proyecto más pequeño ya incluye las tres; lo que
+cambia entre niveles es hasta dónde llegan las dos últimas.
 
-Esta cifra es un punto de entrada, no el costo de cualquier desarrollo. Los
-sistemas y plataformas a medida se cotizan según su alcance: funcionalidades,
-integraciones y complejidad. El tabulador detallado no es público.
+## Niveles y precio
 
-Los planes de mantenimiento posteriores al lanzamiento comienzan desde
-${pricing.maintenanceFromLabel}.
+Tres niveles, cada uno con un punto de partida. No son paquetes cerrados: el
+alcance define la cotización final.
+
+${offerLines}
+
+Los planes de seguimiento posteriores al lanzamiento comienzan desde
+${pricing.maintenanceFromLabel} y son opcionales.
+
+Web Activa incluye dominio y hosting el primer año. Al terminar ese año el
+cliente puede seguir con el plan de seguimiento o hacerse cargo directamente
+del dominio y el hosting. En plataformas y apps la infraestructura depende del
+proyecto.
+
+El tabulador detallado no es público.
 
 ## Motor de Análisis de Negocio
 
