@@ -43,7 +43,7 @@ function limpiarRespuestas(raw: unknown): Record<string, string | string[]> {
 }
 
 async function notificar(d: {
-  negocio: string; giro: string; prioridad: string; categoria: string
+  negocio: string; giro: string; prioridad: string; categoria: string; oferta: string | null
   titular: string; ref: string; nombre: string; email: string; whatsapp: string
 }): Promise<string | null> {
   const key = process.env.RESEND_API_KEY
@@ -58,6 +58,7 @@ async function notificar(d: {
     <ul>
       <li>Prioridad: ${d.prioridad}</li>
       <li>Recomendación: ${d.categoria}</li>
+      <li>Nivel propuesto: ${d.oferta ?? "—"}</li>
     </ul>
     <h3>Contacto</h3>
     <ul><li>${d.nombre}</li><li>${d.email}</li><li>${d.whatsapp}</li></ul>
@@ -101,6 +102,9 @@ export async function POST(req: NextRequest) {
   const prioridad = sanitizeText(dx.prioridad, 40) ?? "—"
   const categoria = sanitizeText(dx.categoria, 40) ?? "—"
   const producto = sanitizeText(dx.producto, 20)
+  // Nivel comercial recomendado. Entra en el mismo JSONB que el resto del
+  // resumen, así que no requiere cambio de esquema.
+  const oferta = sanitizeText(dx.oferta, 20)
   const titular = sanitizeText(dx.titular, 300) ?? ""
 
   let dbError = false
@@ -111,7 +115,7 @@ export async function POST(req: NextRequest) {
       nombre_negocio: respuestas.businessName ?? null,
       giro: respuestas.industry ?? null,
       respuestas,
-      diagnostico: { ref, prioridad, categoria, producto, titular },
+      diagnostico: { ref, prioridad, categoria, oferta, producto, titular },
       referencia: ref,
       nombre_contacto: nombre,
       email,
@@ -133,6 +137,7 @@ export async function POST(req: NextRequest) {
     giro: String(respuestas.industry ?? "—"),
     prioridad,
     categoria: producto ? `${categoria} (${producto})` : categoria,
+    oferta,
     titular, ref, nombre, email, whatsapp,
   })
   if (emailError) console.error("[calcular] Email:", emailError)

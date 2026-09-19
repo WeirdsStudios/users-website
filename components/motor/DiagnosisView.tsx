@@ -190,10 +190,35 @@ export default function DiagnosisView({
           </div>
         </Block>
 
-        {/* ── 7. Inversión ── */}
-        <Block n="05" title="Inversión">
-          <p className="text-lg font-bold text-white">{d.inversion.entrada}</p>
-          <p className="text-[#8A8A8A] text-[13px] mt-2 leading-relaxed">{d.inversion.nota}</p>
+        {/* ── 7. Punto de partida ──
+            No se titula "Inversión" a secas: lo que se muestra es el nivel
+            recomendado y desde dónde parte, no una cotización. El nivel va
+            primero y el precio debajo, para que se lea como "esto es lo que
+            te conviene" y no como "esto es lo que cuesta". */}
+        <Block n="05" title="Punto de partida">
+          {d.inversion.nivel && d.inversion.desde ? (
+            <>
+              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#4cfc0f]">
+                Nivel recomendado
+              </p>
+              <p className="text-lg lg:text-xl font-bold text-white mt-1.5">
+                {d.inversion.nivel}
+              </p>
+              <p className="flex items-baseline gap-1.5 mt-1">
+                <span className="font-mono text-[11px] text-[#8A8A8A]">Desde</span>
+                <span className="text-lg font-bold tnum text-white">{d.inversion.desde}</span>
+              </p>
+            </>
+          ) : (
+            <p className="text-lg font-bold text-white">{d.inversion.entrada}</p>
+          )}
+          <p className="text-[#8A8A8A] text-[13px] mt-3 leading-relaxed">{d.inversion.nota}</p>
+          {d.recomendacion.podriaEscalar && (
+            <p className="text-[#8A8A8A] text-[13px] mt-2 leading-relaxed">
+              Si al revisar tu caso aparece más operación de la que alcanzan
+              estas preguntas, te lo decimos antes de cotizar.
+            </p>
+          )}
         </Block>
 
         {/* ── 8. Por qué ── */}

@@ -202,7 +202,13 @@ export default function MotorClient() {
 
     const d = diagnose(answers)
     setDiagnosis(d)
-    trackEvent("analysis_completed", { step: STEPS.length, category: d.recomendacion.category })
+    trackEvent("analysis_completed", {
+      step: STEPS.length,
+      category: d.recomendacion.category,
+      // Nivel comercial recomendado. Se manda aparte de `category`: una mide
+      // qué se diagnosticó, la otra qué se propuso vender.
+      offer: d.recomendacion.offer ?? "ninguna",
+    })
     topRef.current?.scrollIntoView({ block: "start" })
   }
 
@@ -216,6 +222,7 @@ export default function MotorClient() {
       giro ? `Negocio: ${giro}` : "",
       `Prioridad: ${diagnosis.prioridad.label}`,
       `Recomendación inicial: ${diagnosis.recomendacion.title}`,
+      diagnosis.inversion.nivel ? `Punto de partida: ${diagnosis.inversion.entrada}` : "",
       `Referencia: ${diagnosis.ref}`,
       "",
       "Quiero revisar este diagnóstico con ustedes.",
@@ -240,6 +247,9 @@ export default function MotorClient() {
                 ref: diagnosis.ref,
                 prioridad: diagnosis.prioridad.id,
                 categoria: diagnosis.recomendacion.category,
+                // Campo nuevo dentro del MISMO JSONB `diagnostico`: no hace
+                // falta migración, y los leads viejos simplemente no lo traen.
+                oferta: diagnosis.recomendacion.offer ?? null,
                 producto: diagnosis.recomendacion.product ?? null,
                 titular: diagnosis.headline,
               }
@@ -249,7 +259,10 @@ export default function MotorClient() {
       })
       if (!res.ok) throw new Error()
       setSent(true)
-      trackEvent("analysis_contact_clicked", { category: diagnosis?.recomendacion.category })
+      trackEvent("analysis_contact_clicked", {
+        category: diagnosis?.recomendacion.category,
+        offer: diagnosis?.recomendacion.offer ?? "ninguna",
+      })
       try {
         sessionStorage.removeItem(DRAFT_KEY)
       } catch {

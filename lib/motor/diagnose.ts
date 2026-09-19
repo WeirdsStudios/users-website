@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site-config"
+import { siteConfig, getOffer } from "@/lib/site-config"
 import type { Answers } from "./questions"
 import {
   DIMENSIONS,
@@ -194,6 +194,134 @@ const GIRO_LABEL: Record<string, string> = {
   otro: "negocio",
 }
 
+/**
+ * ── CAPA COMERCIAL ────────────────────────────────────────────────────────
+ *
+ * El diagnóstico dice qué le pasa al negocio. Esta capa decide desde qué
+ * nivel de la escalera conviene partir. Son dos preguntas distintas y antes
+ * estaban colapsadas: la categoría de diagnóstico se usaba como si fuera el
+ * nivel comercial, y el precio salía de una constante global.
+ *
+ * Las reglas de abajo se apoyan SOLO en evidencia del cuestionario. No se
+ * infiere "tu proceso es único" de que el negocio sea grande o facture bien.
+ */
+
+/** Herramientas de la operación que implican registro persistente. */
+const OPERACION_PERSISTENTE = ["inventario", "cobros", "recordatorios"] as const
+
+/**
+ * ¿Hace falta una capa privada además del sitio público?
+ *
+ * La distinción que importa: "pedir una cita" cabe en una Web Activa; "entrar,
+ * ver mis citas y administrar disponibilidad" ya es Plataforma. Por eso
+ * `estado` —el cliente necesita consultar cómo va lo suyo— pesa por sí solo:
+ * implica cuentas y registros que persisten entre visitas.
+ */
+function necesitaCapaPrivada(a: Answers, byId: Record<DimensionId, DimensionResult>): boolean {
+  const manual = asArray(a.manualWork).filter((x) => x !== "ninguno")
+  const size = a.size as string
+  const persistentes = manual.filter((m) =>
+    (OPERACION_PERSISTENTE as readonly string[]).includes(m)
+  )
+
+  // Señal inequívoca: el cliente necesita entrar a consultar lo suyo. Eso no
+  // se resuelve con un formulario, necesita cuenta y registro persistente.
+  if (has(a.customerAsks, "estado")) return true
+
+  /**
+   * Un solo proceso persistente NO basta. Casi todo negocio pequeño registra
+   * cobros a mano; tomar eso como prueba de que necesita una plataforma es
+   * cómo se acaba ofreciendo $24,900 a quien pidió una página.
+   */
+  if (persistentes.length >= 2) return true
+  if (persistentes.length >= 1 && byId.operacion.state === "prioridad" && manual.length >= 3)
+    return true
+
+  // Equipo grande con la operación pesando: aparecen puestos distintos y, con
+  // ellos, permisos distintos.
+  if (byId.operacion.state === "prioridad" && (size === "6-20" || size === "20+")) return true
+
+  return false
+}
+
+/**
+ * ¿Hay evidencia suficiente para una app a medida?
+ *
+ * CONSERVADOR A PROPÓSITO. Facturar bien o tener equipo grande NO son
+ * señales: un negocio de veinte personas puede necesitar una Web Activa. Lo
+ * que justifica construir alrededor del proceso es que el proceso esté
+ * repartido en varios frentes manuales Y que las herramientas actuales no se
+ * hablen entre sí. Sin las dos cosas, Plataforma alcanza.
+ */
+function evidenciaDeApp(a: Answers, byId: Record<DimensionId, DimensionResult>): boolean {
+  const manual = asArray(a.manualWork).filter((x) => x !== "ninguno")
+  const tools = a.tools as string
+
+  const variosProcesos = manual.length >= 4
+  const operacionCritica = byId.operacion.state === "prioridad"
+  const tecnologiaNotable =
+    byId.tecnologia.state === "prioridad" || byId.tecnologia.state === "oportunidad"
+  const herramientasSinConectar = tools === "papel" || tools === "excel" || tools === "apps"
+  /**
+   * Escala. Coordinar varios procesos a mano solo es un problema cuando hay a
+   * quién coordinar: una persona sola con cinco procesos manuales necesita
+   * quitarse trabajo de encima, no una aplicación construida a medida.
+   */
+  const hayEquipo = (a.size as string) !== "solo"
+
+  return variosProcesos && operacionCritica && tecnologiaNotable && herramientasSinConectar && hayEquipo
+}
+
+/**
+ * La función acotada que incluye una Web Activa, elegida por evidencia.
+ *
+ * No todas las Web Activa son iguales: la herramienta sale de lo que el
+ * cliente pregunta hoy. Cuando no hay señal específica NO se inventa un
+ * cotizador ni una agenda — se ofrece captación estructurada, que es honesta
+ * y sirve a cualquier giro.
+ */
+function funcionAcotada(a: Answers): { corta: string; larga: string } {
+  const cierre = a.closeProcess as string
+
+  if (has(a.customerAsks, "precios") || cierre === "manual-cotiza")
+    return {
+      corta: "Un cotizador acotado",
+      larga: "un cotizador que arme la propuesta antes de que te escriban",
+    }
+  if (has(a.customerAsks, "disponibilidad"))
+    return {
+      corta: "Solicitud de cita o reserva",
+      larga: "una solicitud de cita o reserva que te llegue ya ordenada",
+    }
+  if (has(a.customerAsks, "catalogo"))
+    return {
+      corta: "Catálogo administrable",
+      larga: "un catálogo que puedas actualizar tú sin pedirnos nada",
+    }
+  return {
+    corta: "Captación y calificación de solicitudes",
+    larga: "un formulario que califique la solicitud antes de que llegue a tu teléfono",
+  }
+}
+
+/**
+ * Fases de una Web Activa según la capacidad.
+ *
+ * Los ingresos NO mueven el nivel —eso lo decide la evidencia— pero sí el
+ * tamaño de la primera etapa. Sin esto, responder ingresos no cambiaba nada
+ * en los niveles de entrada, y una pregunta que no se usa no debería estar en
+ * el cuestionario.
+ */
+function fasesWebActiva(cap: Capacidad, tool: { corta: string }, sitio: string): string[] {
+  const base = [
+    cap === "acotada" ? `${sitio}, enfocado en lo que más se pregunta` : sitio,
+    tool.corta,
+    "Tu panel para administrarlo",
+  ]
+  if (cap === "amplia") base.push("Estructura de contenido para crecer sin rehacer")
+  return base
+}
+
 function buildRecommendation(
   a: Answers,
   dims: DimensionResult[],
@@ -208,13 +336,26 @@ function buildRecommendation(
 
   // ── Producto propio: solo cuando el giro Y la necesidad encajan ──
   if (industry === "fitness" && (notable("operacion") || notable("clientes"))) {
+    // ACTIIVA no tiene fecha, así que la recomendación accionable de HOY es un
+    // nivel de la escalera vigente. Antes aquí se ofrecía "presencia pública",
+    // que es justo el producto que USERS dejó de vender.
+    const capaPrivada = necesitaCapaPrivada(a, byId)
+    const tool = funcionAcotada(a)
     return {
       category: "product",
       product: "ACTIIVA",
-      title: "Un producto pensado para tu giro, y una web que lo sostenga",
-      body: "Por lo que nos cuentas, tu operación se parece mucho a la de los negocios para los que estamos construyendo ACTIIVA: membresías, reservas y cobros en un mismo lugar. Todavía está en desarrollo, así que no podemos prometerte fecha ni precio, pero sí avisarte en cuanto puedas probarla. Mientras tanto, la presencia pública sí se puede resolver ya.",
-      fase_inicial: ["Sitio público que explique el negocio y capte contacto"],
-      evolucion: ["Acceso anticipado a ACTIIVA cuando esté disponible", "O un desarrollo a la medida si prefieres no esperar"],
+      offer: capaPrivada ? "plataforma" : "web-activa",
+      title: "Un producto pensado para tu giro, y algo que ya puedes resolver hoy",
+      body: capaPrivada
+        ? "Por lo que nos cuentas, tu operación se parece mucho a la de los negocios para los que estamos construyendo ACTIIVA: membresías, reservas y cobros en un mismo lugar. Todavía está en desarrollo, así que no podemos prometerte fecha ni precio. Mientras tanto, la parte que ya te está costando —que socios y equipo entren y resuelvan sin pasar por ti— sí se puede construir desde ahora."
+        : `Por lo que nos cuentas, tu giro es el de los negocios para los que estamos construyendo ACTIIVA: membresías, reservas y cobros en un mismo lugar. Todavía está en desarrollo, así que no podemos prometerte fecha ni precio. Mientras tanto sí se puede resolver lo inmediato: una presencia que trabaje, con ${tool.larga}.`,
+      fase_inicial: capaPrivada
+        ? ["Acceso para socios y equipo con lo que hoy se pregunta y se cobra", "Presencia pública conectada a ese acceso"]
+        : fasesWebActiva(cap, tool, "Presencia que explique el negocio y capte contacto"),
+      evolucion: [
+        "Acceso anticipado a ACTIIVA cuando esté disponible",
+        "O seguir creciendo el desarrollo propio si prefieres no esperar",
+      ],
     }
   }
   /**
@@ -226,21 +367,14 @@ function buildRecommendation(
    * en sus permisos, y afirmarlo sería vender algo que no podemos sostener.
    */
 
-  // ── No necesita software a medida ──
+  // ── No hay nada que construir ──
   const todoOrdenado =
     !notable("operacion") && !notable("tecnologia") && manual.length <= 1
-  if (todoOrdenado && notable("presencia")) {
-    return {
-      category: "web",
-      title: "Por ahora, no parece que necesites un sistema a medida",
-      body: "Tu operación ya está razonablemente ordenada: lo que falta no es software, es que tu presencia digital trabaje. Construir un sistema hoy sería resolver un problema que todavía no tienes.",
-      fase_inicial: ["Sitio web que explique el negocio y genere contacto"],
-      evolucion: ["Revisar de nuevo cuando el volumen o el equipo crezcan"],
-    }
-  }
+
   if (todoOrdenado && !notable("presencia") && !notable("clientes")) {
     return {
       category: "no_custom",
+      offer: null,
       title: "No vemos un problema que justifique construir algo ahora",
       body: "Por tus respuestas, ni tu presencia ni tu operación están frenando al negocio. Preferimos decírtelo a venderte un proyecto que no vas a aprovechar. Si más adelante crece el volumen o aparece un cuello de botella, ahí sí conviene revisarlo.",
       fase_inicial: ["Nada urgente"],
@@ -248,63 +382,142 @@ function buildRecommendation(
     }
   }
 
+  const web = a.hasWebsite as string
+  const capaPrivadaBruta = necesitaCapaPrivada(a, byId)
+  const tool = funcionAcotada(a)
+
   /**
-   * ── Operación pesada: software ──
+   * ── Operación pesada ──
    *
    * La operación tiene que ser al menos tan grave como la presencia para
-   * recomendar un sistema. Sin esta condición, un negocio sin sitio web y con
-   * un solo proceso manual recibía "construyamos un sistema administrativo":
-   * es venderle lo grande cuando su problema es lo básico, justo lo que un
-   * diagnóstico honesto debe evitar.
+   * recomendar construir hacia adentro. Sin esta condición, un negocio sin
+   * sitio web y con un solo proceso manual recibía "construyamos un sistema":
+   * es venderle lo grande cuando su problema es lo básico.
    */
+  /**
+   * LA PRESENCIA NO SE PUEDE SALTAR.
+   *
+   * Sin presencia digital real —sin sitio, o solo redes— una capa privada no
+   * tiene a quién servir todavía, y el dueño que dijo "quiero que me
+   * encuentren" no está pidiendo una plataforma. Cuando la presencia pesa al
+   * menos tanto como la operación, se empieza por Web Activa y la operación
+   * queda en la evolución. No es vender menos: es el orden correcto.
+   */
+  const sinPresenciaReal = web === "no" || web === "redes"
+  /**
+   * La excepción: cuando el negocio lleva a mano DOS o más procesos que
+   * exigen registro persistente —cobros, inventario, vencimientos—, su
+   * problema no es el sitio web. Un supermercado que cobra y controla
+   * inventario en papel necesita la operación primero, tenga o no página.
+   */
+  const operacionInequivoca =
+    manual.filter((m) => (OPERACION_PERSISTENTE as readonly string[]).includes(m)).length >= 2
+  const presenciaPrimero =
+    sinPresenciaReal &&
+    !operacionInequivoca &&
+    STATE_RANK[byId.presencia.state] <= STATE_RANK[byId.operacion.state]
+
   const operacionPesada =
-    (grave("operacion") || (notable("operacion") && notable("tecnologia"))) &&
+    !presenciaPrimero &&
+    (grave("operacion") || (notable("operacion") && grave("tecnologia"))) &&
     STATE_RANK[byId.operacion.state] <= STATE_RANK[byId.presencia.state]
+
   if (operacionPesada) {
+    /**
+     * Aquí se decide Plataforma vs App a medida, y NO lo decide la capacidad.
+     * Los ingresos ajustan el tamaño de la primera etapa más abajo; el nivel
+     * sale de la evidencia de operación y tecnología.
+     */
+    const esApp = evidenciaDeApp(a, byId)
     const acotado = cap === "acotada"
+
+    if (esApp) {
+      return {
+        category: "software",
+        offer: "app-a-medida",
+        title: acotado
+          ? "Una app a medida, empezando por el proceso que más te cuesta"
+          : "Una app a medida construida sobre tu operación",
+        body: acotado
+          ? "Tienes varios procesos a mano y herramientas que no se hablan entre sí: eso ya no se arregla con una herramienta de catálogo. Con el tamaño actual del negocio conviene construir por etapas, empezando por el proceso que más tiempo te quita."
+          : "Tienes varios procesos a mano y la información vive en herramientas que no se conectan. Ahí es donde una app construida alrededor de tu operación deja de ser un lujo: es lo que permite que un dato se registre una vez y sirva en todos lados.",
+        fase_inicial: acotado
+          ? ["El proceso manual que más tiempo consume", "Los accesos y permisos mínimos para usarlo"]
+          : ["El proceso principal de la operación, con cuentas y permisos", "Presencia pública conectada"],
+        evolucion: acotado
+          ? ["Sumar los demás procesos conforme se justifiquen", "Conectar lo que hoy se captura dos veces"]
+          : ["Los procesos restantes", "Tableros y reportes", "Integraciones con lo que ya usas"],
+      }
+    }
+
     return {
       category: "software",
+      offer: "plataforma",
+      /**
+       * Fallback conservador. Con 12 preguntas no siempre se puede distinguir
+       * "necesita una capa de operación" de "necesita una app construida
+       * sobre un proceso propio". Ante la duda se recomienda el nivel menor y
+       * se avisa de que el descubrimiento puede mover el alcance — nunca al
+       * revés, que sería vender de más sobre una suposición.
+       */
+      podriaEscalar: true,
       title: acotado
-        ? "Empezar por la parte de la operación que más te cuesta"
-        : "Un sistema que sostenga la operación, por etapas",
+        ? "Una plataforma, empezando por lo que más te cuesta"
+        : "Una plataforma que sostenga la operación, por etapas",
       body: acotado
         ? "Lo que más te está costando es la operación diaria. Con el tamaño actual del negocio, construir todo de una vez sería sobredimensionado: conviene empezar por el proceso que más tiempo te quita y crecer desde ahí."
-        : "La operación es hoy el cuello de botella. Tiene sentido construir un sistema propio, pero por etapas: primero lo que más duele, después el resto.",
+        : "La operación es hoy el cuello de botella. Tiene sentido una plataforma propia, pero por etapas: primero lo que más duele, después el resto.",
       fase_inicial: acotado
         ? ["El proceso manual que más tiempo consume", "Presencia pública si todavía no existe"]
-        : ["Sistema administrativo del proceso principal", "Presencia pública conectada"],
+        : ["La operación principal con cuentas y permisos", "Presencia pública conectada"],
       evolucion: acotado
-        ? ["Sumar los demás procesos conforme se justifiquen", "Portal o automatizaciones para clientes"]
+        ? ["Sumar los demás procesos conforme se justifiquen", "Portal para que tus clientes consulten solos"]
         : ["Roles y permisos por puesto", "Portal de clientes", "Reportes y control"],
     }
   }
 
-  // ── Clientes preguntando de más: web + herramienta ──
-  if (notable("clientes") || notable("adquisicion")) {
-    const asks = asArray(a.customerAsks)
-    const herramienta = asks.includes("precios")
-      ? "un cotizador que arme la propuesta antes de que te escriban"
-      : asks.includes("disponibilidad")
-        ? "reservas o agenda que se consulten sin preguntarte"
-        : asks.includes("estado")
-          ? "un portal donde tu cliente vea cómo va lo suyo"
-          : "una herramienta que resuelva lo que hoy se pregunta por mensaje"
+  // ── El cliente necesita entrar y consultar: capa privada ──
+  if (capaPrivadaBruta && !presenciaPrimero) {
     return {
       category: "web_plus",
-      title: "Una web que además haga trabajo, no solo que se vea bien",
-      body: `Tu presencia no solo tiene que explicar el negocio: por lo que nos cuentas, conviene que incluya ${herramienta}. Ahí es donde se recupera el tiempo que hoy se va en responder lo mismo.`,
-      fase_inicial: ["Sitio web con la información que hoy se pregunta", "La herramienta que resuelva la consulta más repetida"],
-      evolucion: ["Conectar con tu operación interna", "Automatizar seguimientos"],
+      offer: "plataforma",
+      podriaEscalar: true,
+      title: "Una plataforma donde tu cliente entre y resuelva solo",
+      body: "Lo que te están pidiendo no se resuelve con un formulario: necesitan consultar cómo va lo suyo, y eso implica una cuenta y un registro que siga ahí la próxima vez que entren.",
+      fase_inicial: [
+        "Acceso para que tu cliente consulte su información",
+        "Presencia pública que explique el negocio",
+      ],
+      evolucion: ["Que el equipo administre desde el mismo lugar", "Reportes y seguimiento"],
     }
   }
 
-  // ── Por defecto: presencia ──
+  // ── Clientes preguntando de más: Web Activa con herramienta ──
+  if (notable("clientes") || notable("adquisicion")) {
+    return {
+      category: "web_plus",
+      offer: "web-activa",
+      title: "Una web que además haga trabajo, no solo que se vea bien",
+      body: `Tu presencia no solo tiene que explicar el negocio: por lo que nos cuentas, conviene que incluya ${tool.larga}. Ahí es donde se recupera el tiempo que hoy se va en responder lo mismo.`,
+      fase_inicial: fasesWebActiva(cap, tool, "Sitio con la información que hoy se pregunta"),
+      evolucion:
+        cap === "acotada"
+          ? ["Ampliar la herramienta cuando el volumen lo pida", "Conectar con tu operación interna"]
+          : ["Conectar con tu operación interna", "Automatizar seguimientos"],
+    }
+  }
+
+  // ── Por defecto: Web Activa ──
   return {
     category: "web",
+    offer: "web-activa",
     title: "Empezar por una presencia que trabaje",
-    body: "Por tus respuestas, el punto de mayor retorno hoy está en la presencia: que te encuentren, que entiendan qué haces y que puedan contactarte sin fricción.",
-    fase_inicial: ["Sitio web que explique el negocio y capte contacto"],
-    evolucion: ["Sumar herramientas cuando la operación lo pida"],
+    body: `Por tus respuestas, el punto de mayor retorno hoy está en la presencia: que te encuentren, que entiendan qué haces y que puedan avanzar sin esperar a que contestes. Incluye ${tool.larga}, para que el sitio no se quede en explicar.`,
+    fase_inicial: fasesWebActiva(cap, tool, "Sitio que explique el negocio y capte contacto"),
+    evolucion:
+      cap === "amplia"
+        ? ["Sumar herramientas conforme el volumen lo pida", "Conectar con tu operación interna"]
+        : ["Ampliar la herramienta cuando el volumen lo pida", "Conectar con tu operación interna"],
   }
 }
 
@@ -325,7 +538,7 @@ function buildOpportunities(dims: DimensionResult[], rec: Recommendation): Oppor
     },
     operacion: {
       title: "Quitar de encima el trabajo repetido",
-      body: "Registrar una vez lo que hoy se anota en varios lados.",
+      body: "Registrar una vez lo que hoy se anota en varios lados, con accesos por puesto.",
       solution: "/soluciones/software-a-medida",
     },
     clientes: {
@@ -352,16 +565,17 @@ function buildOpportunities(dims: DimensionResult[], rec: Recommendation): Oppor
     horizon: horizontes[i] ?? "mas_adelante",
     title: COPY[d.id].title,
     body: COPY[d.id].body,
-    solution: rec.category === "no_custom" ? undefined : COPY[d.id].solution,
+    // Sin proyecto recomendado no se enlaza a vender nada.
+    solution: rec.offer === null ? undefined : COPY[d.id].solution,
   }))
 }
 
 function buildHeadline(a: Answers, prioridad: DimensionResult, rec: Recommendation): string {
   const giro = GIRO_LABEL[a.industry as string] ?? "negocio"
-  if (rec.category === "no_custom")
+  if (rec.offer === null)
     return `Por ahora tu ${giro} no necesita que construyamos nada: lo que tienes está funcionando.`
   if (rec.category === "product")
-    return `Tu ${giro} encaja con un producto que ya estamos construyendo, y con una presencia que puede resolverse desde ahora.`
+    return `Tu ${giro} encaja con un producto que ya estamos construyendo, y con algo que sí se puede resolver desde ahora.`
 
   switch (prioridad.id) {
     case "operacion":
@@ -388,7 +602,7 @@ function buildReasons(a: Answers, dims: DimensionResult[], rec: Recommendation):
   for (const d of conEvidencia.slice(0, 3)) {
     razones.push(d.evidence[0])
   }
-  if (rec.category === "no_custom" && razones.length === 0) {
+  if (rec.offer === null && razones.length === 0) {
     razones.push("Tus respuestas no muestran procesos manuales ni preguntas repetidas que justifiquen construir un sistema.")
   }
   return razones.slice(0, 4)
@@ -414,8 +628,20 @@ export function diagnose(a: Answers, ref = newRef()): Diagnosis {
     .flatMap((d) => d.evidence)
     .slice(0, 5)
 
+  /**
+   * ¿Hay que cotizar en vez de dar un punto de partida y ya?
+   *
+   * Cualquier nivel por encima de la entrada depende demasiado del alcance
+   * como para insinuar que el "desde" alcanza. Y una Web Activa cuyo nivel se
+   * eligió de forma conservadora también: el descubrimiento puede moverlo.
+   */
+  const offer = recomendacion.offer
   const requiereCotizacion =
-    recomendacion.category === "software" || recomendacion.category === "web_plus"
+    offer === "plataforma" || offer === "app-a-medida" || recomendacion.podriaEscalar === true
+
+  // El nivel y su precio salen de siteConfig. Ninguna cifra vive aquí.
+  const nivel = offer ? getOffer(offer).name : null
+  const desde = offer ? siteConfig.pricing.offerLabel(offer) : null
 
   return {
     headline: buildHeadline(a, prioridad, recomendacion),
@@ -426,16 +652,20 @@ export function diagnose(a: Answers, ref = newRef()): Diagnosis {
     recomendacion,
     razones: buildReasons(a, dimensions, recomendacion),
     inversion: {
-      // El precio de entrada sale de siteConfig, no escrito a mano: si cambia
-      // la cifra comercial, el diagnóstico no puede quedarse anunciando la
-      // anterior.
-      entrada:
-        recomendacion.category === "no_custom"
-          ? "Sin inversión recomendada por ahora"
-          : `Proyectos desde ${siteConfig.pricing.startingPriceLabel}`,
-      nota: requiereCotizacion
-        ? "El alcance exacto depende de las funciones, integraciones y complejidad. Lo cotizamos después de revisarlo contigo."
-        : "El precio final depende del contenido y de las funciones que se incluyan.",
+      /**
+       * El precio corresponde al NIVEL recomendado, no a un piso global.
+       * Antes decía "Proyectos desde $12,900" incluso al recomendar una
+       * operación completa: el piso de la entrada bajo una propuesta tres
+       * veces mayor.
+       */
+      nivel,
+      desde,
+      entrada: nivel && desde ? `${nivel} desde ${desde}` : "Sin inversión recomendada por ahora",
+      nota: !offer
+        ? "No hay nada que cotizar ahora mismo, y eso también es un resultado."
+        : requiereCotizacion
+          ? "Es un punto de partida, no una cotización: el alcance exacto se define contigo después de revisar el caso."
+          : "Es un punto de partida. El precio final depende del contenido, de la herramienta que se incluya y de las integraciones.",
       requiereCotizacion,
     },
     ref,

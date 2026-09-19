@@ -66,6 +66,13 @@ export interface EventMeta {
   project?: string
   /** Nombre del producto (actiiva). */
   product?: string
+  /**
+   * Nivel comercial recomendado por el Motor: web-activa, plataforma,
+   * app-a-medida o "ninguna". Va aparte de `category`, que sigue midiendo el
+   * diagnóstico: sin las dos no se puede ver si lo que diagnosticamos y lo
+   * que proponemos vender coinciden.
+   */
+  offer?: string
   /** Slug del artículo. */
   article?: string
   /** Origen de la campaña. */
