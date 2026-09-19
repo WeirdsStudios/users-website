@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 /**
  * Quién responde por el proyecto.
  *
@@ -96,6 +98,16 @@ export default function Equipo() {
               <p className="text-[#B0B0B0] text-sm mt-3 leading-relaxed">
                 {FOUNDER.focus}
               </p>
+
+              {/* La home mantiene la señal de confianza compacta; la página
+                  completa vive en /nosotros. No se duplica aquí. */}
+              <Link
+                href="/nosotros"
+                className="inline-flex items-center gap-2 mt-5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#4cfc0f] hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cfc0f]"
+              >
+                Cómo trabajamos y en qué condiciones
+                <span aria-hidden="true">→</span>
+              </Link>
             </article>
           </div>
         </div>
