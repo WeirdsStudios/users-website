@@ -17,7 +17,7 @@
  * navegar el sitio, solo Google.
  */
 
-import { siteConfig } from "@/lib/site-config"
+import { siteConfig, type OfferId } from "@/lib/site-config"
 
 export type SolutionArea = "presencia" | "operacion" | "clientes"
 
@@ -34,6 +34,14 @@ export interface Solution {
   whyItExists: string
   /** Slugs de casos que respaldan esta solución. */
   cases: string[]
+  /**
+   * Nivel de la escalera desde el que suele partir esta solución.
+   *
+   * Es una orientación, no una regla: un cotizador puede resolverse dentro de
+   * una Web Activa o requerir una plataforma según el alcance. Se omite cuando
+   * el nivel depende demasiado del caso como para insinuar uno.
+   */
+  startsAt?: OfferId
   metaTitle: string
   metaDescription: string
 }
@@ -60,23 +68,31 @@ export const SOLUTIONS: Solution[] = [
     area: "presencia",
     intent: "Necesito una página web para mi negocio.",
     teaser:
-      "Sitios, landing pages, catálogos y tiendas en línea construidos para explicar el negocio y generar contacto.",
+      "Sitios, landing pages, catálogos y tiendas en línea que además resuelven algo concreto y se administran desde tu panel.",
     whyItExists:
       "Es la puerta de entrada más buscada y la única que responde «quiero una página». Las demás páginas asumen que el visitante ya sabe que necesita software.",
     cases: ["greek-gym", "las-frescas"],
+    startsAt: "web-activa",
     metaTitle: "Desarrollo web para PyMEs en México | USERS",
     metaDescription: `Desarrollo web para negocios que necesitan que su sitio explique, genere contacto y pueda conectarse después con sus sistemas. Proyectos desde ${siteConfig.pricing.startingPriceLabel}.`,
   },
   {
     slug: "software-a-medida",
-    name: "Software a medida",
+    /**
+     * La URL conserva "software-a-medida" —tiene valor de búsqueda e
+     * indexación— pero el nombre visible es el comercial. El vocabulario SEO
+     * ("software a medida", "desarrollo web a medida") vive en metadata y en
+     * el cuerpo de la página, donde sirve sin contradecir cómo vendemos.
+     */
+    name: "App a medida",
     area: "operacion",
     intent: "Quiero dejar de operar con Excel y herramientas sueltas.",
     teaser:
-      "Sistemas administrativos, herramientas internas y automatizaciones construidas alrededor de cómo trabaja tu negocio.",
+      "Aplicaciones web con cuentas, roles y flujos propios, construidas alrededor de cómo trabaja tu negocio.",
     whyItExists:
       "Es la categoría amplia de operación. Responde la decisión previa —¿herramienta existente o desarrollo propio?— que ninguna página específica plantea.",
     cases: ["greek-gym", "llevelin"],
+    startsAt: "app-a-medida",
     metaTitle: "Software a medida para empresas y PyMEs | USERS",
     metaDescription:
       "Desarrollo de software a medida en México: sistemas administrativos, herramientas internas y automatizaciones construidas alrededor de la operación real de tu negocio.",
@@ -91,6 +107,8 @@ export const SOLUTIONS: Solution[] = [
     whyItExists:
       "Especialización concreta de software a medida, con una intención de búsqueda propia y un caso dedicado (Llevelín). Quien busca «punto de venta» no busca «software a medida».",
     cases: ["llevelin"],
+    /** Sin `startsAt`: una caja sencilla y una operación como la de Llevelín
+     *  caen en niveles distintos. Insinuar uno solo sería inexacto. */
     metaTitle: "Desarrollo de punto de venta a medida | USERS",
     metaDescription:
       "Desarrollamos sistemas de punto de venta alrededor de la operación real del negocio, para modelos con reglas propias o varios puntos de atención.",
@@ -105,6 +123,8 @@ export const SOLUTIONS: Solution[] = [
     whyItExists:
       "Captura un dolor operativo muy específico —cotizar a mano, una y otra vez— que no aparece en ninguna otra página.",
     cases: ["las-frescas"],
+    /** Sin `startsAt`: un cotizador puede ser la herramienta incluida en una
+     *  Web Activa o requerir una plataforma, según lo que tenga que calcular. */
     metaTitle: "Cotizadores digitales para negocios | USERS",
     metaDescription:
       "Cotizadores digitales que convierten una conversación repetitiva en un proceso: el cliente configura lo que necesita antes de contactarte.",
@@ -119,6 +139,7 @@ export const SOLUTIONS: Solution[] = [
     whyItExists:
       "Responde la necesidad de autoservicio continuo —cuenta, historial, estado—, distinta de una cotización puntual o de un sitio informativo.",
     cases: ["greek-gym"],
+    startsAt: "plataforma",
     metaTitle: "Portales para clientes y autoservicio | USERS",
     metaDescription:
       "Desarrollamos portales donde tus clientes consultan información, hacen solicitudes y gestionan su cuenta sin depender de WhatsApp.",

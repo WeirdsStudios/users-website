@@ -23,6 +23,41 @@ export interface MaintenancePlan {
   highlight: boolean
 }
 
+/**
+ * Los tres niveles con los que USERS vende.
+ *
+ * NO son paquetes cerrados. Cada uno declara un punto de partida y un alcance
+ * representativo; el precio final sale del alcance real. Por eso cada nivel
+ * lleva `notIncluded`: el "desde" tiene que decir también qué NO implica, o se
+ * lee como una lista de funciones incluidas.
+ *
+ * El orden del arreglo es el orden comercial: entrada → operación → a medida.
+ * `pricing.startingPrice` se deriva del primero, así que el precio de entrada
+ * del sitio no puede desincronizarse de la escalera.
+ */
+export type OfferId = "web-activa" | "plataforma" | "app-a-medida"
+
+export interface CommercialOffer {
+  id: OfferId
+  name: string
+  /** Punto de partida. Nunca el precio de un proyecto concreto. */
+  startingPrice: number
+  /** Una línea: para quién es. */
+  forWhom: string
+  /** Una línea: qué problema resuelve. */
+  solves: string
+  /** Alcance representativo, no lista de entregables cerrada. */
+  scope: readonly string[]
+  /** Qué NO implica el "desde". Obligatorio: sin esto el precio miente. */
+  notIncluded: string
+  /**
+   * Caso cuyo ALCANCE se parece a este nivel. Es una referencia de tamaño,
+   * no una reetiquetación: estos proyectos se entregaron antes de que
+   * existiera esta escalera y se describen en /proyectos como lo que fueron.
+   */
+  comparableCase?: { slug: string; name: string }
+}
+
 export interface Product {
   name: string
   /** Vertical que atiende. Es el mensaje comercial, no el estado técnico. */
@@ -33,6 +68,91 @@ export interface Product {
   urlLabel: string
   description: string
   tags: readonly string[]
+}
+
+/** "$12,900 MXN". Un solo formateador para toda cifra comercial. */
+function priceLabel(amount: number, currency = "MXN"): string {
+  return `$${amount.toLocaleString("en-US")} ${currency}`
+}
+
+/**
+ * La escalera comercial de USERS.
+ *
+ * PRINCIPIO QUE LA SOSTIENE: una solución USERS combina presencia (lo que ve
+ * el cliente), función (algo útil que puede hacer) y control (lo que el
+ * negocio administra). Los tres niveles no se distinguen por "cuántas
+ * páginas", sino por hasta dónde llega la función y el control.
+ *
+ * El nivel de entrada ya no es un sitio informativo. Esa es la diferencia
+ * comercial respecto del modelo anterior.
+ */
+export const COMMERCIAL_OFFERS = [
+  {
+    id: "web-activa",
+    name: "Web Activa",
+    startingPrice: 12900,
+    forWhom:
+      "Negocios que ya venden y necesitan que su presencia digital deje de ser un folleto.",
+    solves:
+      "Lo que hoy se resuelve contestando los mismos mensajes: precios, disponibilidad, catálogo, solicitudes.",
+    scope: [
+      "Sitio responsivo, con estructura y contenido trabajados",
+      "Base técnica de SEO y analítica",
+      "Contacto y WhatsApp",
+      "Dominio y hosting el primer año",
+      "Una herramienta funcional acotada",
+      "Tu panel para administrar lo anterior",
+    ],
+    notIncluded:
+      "Incluye una herramienta acotada, definida contigo al arrancar. Herramientas adicionales, integraciones o mayor complejidad se cotizan aparte.",
+    comparableCase: { slug: "las-frescas", name: "Las Frescas" },
+  },
+  {
+    id: "plataforma",
+    name: "Plataforma",
+    startingPrice: 24900,
+    forWhom:
+      "Negocios con equipo, clientes recurrentes o varias sucursales que ya no caben en una hoja de cálculo.",
+    solves:
+      "Cuando además del sitio público hace falta una capa privada donde el equipo o los clientes entren y trabajen.",
+    scope: [
+      "Todo lo de Web Activa",
+      "Acceso con cuentas y perfiles",
+      "Portal de clientes o de socios",
+      "Reservas, membresías o pedidos",
+      "Inventario, caja o punto de venta",
+      "Roles, permisos y varias sucursales",
+    ],
+    notIncluded:
+      "Son ejemplos de lo que una plataforma puede incluir, no una lista que entre completa en el precio de entrada. El alcance define la cotización.",
+    comparableCase: { slug: "greek-gym", name: "Greek Gym" },
+  },
+  {
+    id: "app-a-medida",
+    name: "App a medida",
+    startingPrice: 39900,
+    forWhom:
+      "Negocios cuya operación no se parece a la de nadie más y no encaja en una herramienta de catálogo.",
+    solves:
+      "Cuando el proceso del negocio es el producto y el software tiene que construirse alrededor de él.",
+    scope: [
+      "Aplicación web construida sobre tu proceso",
+      "Autenticación y roles",
+      "Flujos de trabajo propios",
+      "Base de datos y tableros",
+      "Automatizaciones e integraciones",
+      "Instalable en el dispositivo (PWA)",
+    ],
+    notIncluded:
+      "El punto de partida no incluye todo lo anterior: una app a medida se cotiza por el proceso que tiene que sostener.",
+    comparableCase: { slug: "llevelin", name: "Llevelín" },
+  },
+] as const satisfies readonly CommercialOffer[]
+
+export function getOffer(id: OfferId): CommercialOffer {
+  const offer = COMMERCIAL_OFFERS.find((o) => o.id === id)
+  if (!offer) throw new Error(`Oferta desconocida: ${id}`)
+  return offer
 }
 
 const DAY_NAMES = [
@@ -146,17 +266,33 @@ export const siteConfig = {
     retencionProspectosMeses: 12,
   },
 
+  /**
+   * Los tres niveles con los que se vende. Ver COMMERCIAL_OFFERS arriba.
+   * Se expone aquí para que el sitio tenga un solo punto de acceso.
+   */
+  offers: COMMERCIAL_OFFERS,
+
   pricing: {
-    /** Punto de entrada, no precio de un desarrollo completo. */
-    startingPrice: 11900,
     currency: "MXN",
-    /** "$11,900 MXN" — usar siempre esto en vez de escribirlo a mano. */
+    /**
+     * Punto de entrada del sitio = punto de entrada de Web Activa. Se deriva,
+     * no se escribe: si cambia la escalera, cambia el sitio entero —Hero,
+     * footer, metadata, llms.txt, Centro de Atención y el resultado del Motor.
+     */
+    get startingPrice() {
+      return COMMERCIAL_OFFERS[0].startingPrice
+    },
+    /** "$12,900 MXN" — usar siempre esto en vez de escribirlo a mano. */
     get startingPriceLabel() {
-      return `$${this.startingPrice.toLocaleString("en-US")} ${this.currency}`
+      return priceLabel(this.startingPrice, this.currency)
+    },
+    /** Etiqueta de cualquier nivel de la escalera. */
+    offerLabel(id: OfferId) {
+      return priceLabel(getOffer(id).startingPrice, this.currency)
     },
     maintenanceFrom: 399,
     get maintenanceFromLabel() {
-      return `$${this.maintenanceFrom.toLocaleString("en-US")} ${this.currency}/mes`
+      return `${priceLabel(this.maintenanceFrom, this.currency)}/mes`
     },
   },
 
@@ -211,6 +347,40 @@ export const siteConfig = {
       highlight: true,
     },
   ] as MaintenancePlan[],
+
+  /**
+   * Qué pasa con el dominio y el hosting. Política decidida, no ambigüedad.
+   *
+   * Web Activa incluye dominio y hosting el primer año. Al terminar ese año
+   * hay dos caminos y ninguno apaga el sitio: seguir con el plan de
+   * seguimiento, o hacerse cargo directamente de la infraestructura.
+   *
+   * Se enuncia así a propósito. "Después del primer año se renueva" deja al
+   * cliente suponiendo que el sitio se cae si no paga mantenimiento, y eso no
+   * es cierto: el mantenimiento es opcional, la infraestructura es un costo
+   * que alguien tiene que cubrir.
+   */
+  infrastructure: {
+    includedFirstYear: "Dominio y hosting incluidos el primer año",
+    afterFirstYear: [
+      {
+        id: "seguimiento",
+        title: "Seguir con el plan de seguimiento",
+        body: "USERS mantiene dominio, hosting, respaldos y actualizaciones, y tú sigues con soporte.",
+      },
+      {
+        id: "directo",
+        title: "Hacerte cargo de la infraestructura",
+        body: "Tomas el dominio y el hosting a tu nombre y los pagas directo, sin seguimiento de USERS.",
+      },
+    ],
+    /** Lo que NO hay que dejar suponer. */
+    clarification:
+      "El sitio no deja de funcionar si no contratas seguimiento: el plan es opcional y la infraestructura se puede llevar por tu cuenta.",
+    /** Plataformas y apps no caben en una cifra única. */
+    platformNote:
+      "En plataformas y apps la infraestructura depende del proyecto: usuarios, datos y disponibilidad no cuestan igual en todos los casos.",
+  },
 
   /**
    * Productos propios de USERS. Cambiar `status` a "live" es todo lo que hace
