@@ -54,7 +54,7 @@ export default function SoftwareAMedidaPage() {
     <>
       <SolutionBreadcrumbJsonLd solution={solution} />
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <SolutionHeader
           solution={solution}
           eyebrow="App a medida"

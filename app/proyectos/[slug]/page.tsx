@@ -73,7 +73,7 @@ export default async function ProyectoPage({
       />
       <Header />
       <ViewTracker event="project_viewed" slug={project.slug} />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         {/* ── Encabezado ── */}
         <header className="relative pt-28 pb-10 lg:pt-36 lg:pb-14 overflow-hidden">
           <div

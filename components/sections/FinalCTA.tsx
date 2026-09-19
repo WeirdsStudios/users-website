@@ -59,7 +59,13 @@ export default function FinalCTA() {
         </div>
 
         <p className="text-[#8A8A8A] text-sm mt-10">
-          {siteConfig.contact.hours} · {siteConfig.contact.city} ·{" "}
+          <Link
+            href="/contacto"
+            className="text-white hover:text-[#4cfc0f] transition-colors underline underline-offset-4"
+          >
+            Otras formas de contacto
+          </Link>{" "}
+          · {siteConfig.contact.hours} · {siteConfig.contact.city} ·{" "}
           <a
             href={`mailto:${siteConfig.contact.email}`}
             className="hover:text-white transition-colors underline underline-offset-4 inline-block py-1.5"

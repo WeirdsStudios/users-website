@@ -104,6 +104,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased bg-white text-[#0A0A0A]">
+        {/* Salto al contenido: invisible hasta recibir foco por teclado.
+            Primer elemento enfocable de la página, antes del header fijo. */}
+        <a href="#contenido" className="skip-link">
+          Saltar al contenido
+        </a>
         <SmoothScroll />
         {children}
         <SupportWidget />

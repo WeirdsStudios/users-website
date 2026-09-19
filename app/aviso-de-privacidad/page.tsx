@@ -52,7 +52,7 @@ export default function AvisoDePrivacidadPage() {
   return (
     <>
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 pt-28 pb-16 lg:pt-36 lg:pb-24">
           <nav aria-label="Ruta de navegación" className="font-mono text-[11px] text-[#8A8A8A]">
             <Link href="/" className="hover:text-white transition-colors py-1.5 inline-block">

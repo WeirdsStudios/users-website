@@ -54,7 +54,7 @@ export default function CentroDeAtencionPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <header className="relative pt-28 pb-8 lg:pt-36 lg:pb-10 overflow-hidden">
           <div
             aria-hidden="true"
