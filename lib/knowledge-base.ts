@@ -114,7 +114,7 @@ export const KB_ENTRIES: KbEntry[] = [
     category: "empezar",
     question: "¿Cómo empiezo un proyecto con ustedes?",
     answer:
-      "Hay dos caminos. Si ya sabes qué necesitas, escríbenos por WhatsApp y lo platicamos. Si todavía no lo tienes claro, el Motor de Análisis te hace las preguntas que haríamos en una primera reunión y te devuelve un diagnóstico con un estimado, sin hablar con nadie.",
+      "Hay dos caminos. Si ya sabes qué necesitas, escríbenos por WhatsApp y lo platicamos. Si todavía no lo tienes claro, el Motor de Análisis te hace las preguntas que haríamos en una primera reunión y te devuelve un diagnóstico con prioridades y un punto de partida de inversión, sin hablar con nadie.",
     mode: "GUIDED",
     tags: ["empezar", "contratar", "primer paso", "contacto"],
     related: [
@@ -127,7 +127,7 @@ export const KB_ENTRIES: KbEntry[] = [
     category: "empezar",
     question: "¿Qué es el Motor de Análisis?",
     answer:
-      "Una herramienta gratuita de 6 pasos. Preguntamos por tu giro, tamaño, cómo consigues clientes y qué te está costando trabajo, y te devuelve un diagnóstico, un rango de inversión desglosado por módulo y un tiempo aproximado de entrega. No requiere registro ni tarjeta.",
+      "Una herramienta gratuita de 5 pasos y 12 preguntas. Preguntamos por tu giro, tamaño, cómo consigues clientes y qué te está costando trabajo, y te devuelve un diagnóstico con las prioridades de tu negocio, qué conviene construir primero, qué puede esperar y desde dónde parte la inversión. No es una cotización: el alcance exacto se revisa después contigo. No requiere registro ni tarjeta.",
     mode: "GUIDED",
     tags: ["motor", "análisis", "cotizador", "diagnóstico", "gratis"],
     related: [{ label: "Hacer el análisis", href: "/analisis" }],

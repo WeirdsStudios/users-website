@@ -1,131 +1,214 @@
 # MAPA DEL PROYECTO — users.mx
 
-## Estructura de componentes
-
-### Sitio principal (`/app/page.tsx`)
-Orden de secciones en la home:
-1. Header (fixed)
-2. Hero
-3. Manifesto
-4. ClientLogos
-5. Services
-6. Portfolio
-7. Process
-8. Differentiators ("Por qué elegirnos")
-9. Testimonials
-10. MotorCTA ("Motor de Análisis")
-11. FAQ
-12. Team
-13. FinalCTA
-14. Blog
-15. Footer
+Mapa del sitio **real**. Si algo de aquí no coincide con el código, gana el
+código y este archivo se corrige.
 
 ---
 
-## Componente clave: BrowserFrame
+## Rutas
 
-**Archivo:** `components/ui/BrowserFrame.tsx`
+| Ruta | Qué es |
+|---|---|
+| `/` | Home |
+| `/soluciones` | Índice de soluciones |
+| `/soluciones/desarrollo-web` | Presencia |
+| `/soluciones/software-a-medida` | Operación |
+| `/soluciones/punto-de-venta-a-medida` | Operación |
+| `/soluciones/cotizadores-digitales` | Clientes |
+| `/soluciones/portales-para-clientes` | Clientes |
+| `/proyectos` | Índice de casos |
+| `/proyectos/[slug]` | `greek-gym`, `llevelin`, `las-frescas` |
+| `/productos` | Productos propios de USERS |
+| `/analisis` | Motor de Análisis |
+| `/centro-de-atencion` | Centro de Atención completo |
+| `/ayuda` | Central de ayuda y planes de seguimiento |
+| `/blog`, `/blog/[slug]` | 4 artículos |
+| `/aviso-de-privacidad` | Legal |
+| `/hola` | 307 hacia `/` con UTM. Para QR e impresos |
+| `/llms.txt` | Resumen factual para modelos |
+| `/api/analisis/calcular` | Registra el lead: Supabase + Resend |
+| `/api/analisis/guardar-progreso` | Guardado parcial del Motor |
 
-Renderiza un marco de navegador (browser chrome) con una imagen de screenshot adentro.
+Generadas: `robots.ts`, `sitemap.ts`, `opengraph-image.tsx`.
 
-```tsx
-<BrowserFrame
-  screenshotSrc="/imgs/portfolio/tu-proyecto.webp"  // ← CAMBIAR AQUÍ
-  screenshotAlt="Nombre del proyecto"
-  urlLabel="tudominio.com"
-/>
-```
-
-**Para reemplazar la imagen interior de cada proyecto:**
-- Ir a `components/sections/Portfolio.tsx`
-- Buscar el array `projects`
-- Cambiar el campo `screenshotSrc` de cada proyecto por la captura real
+**Redirect vigente** (`next.config.ts`): el artículo de ACTIIVA cambió de slug y
+la URL anterior responde 301.
 
 ---
 
-## Imágenes del proyecto (`/public/imgs/`)
+## Home — orden de secciones
+
+`app/page.tsx`:
+
+1. `Header` — fijo
+2. `Hero` — propuesta + CTA al Motor + WhatsApp
+3. `Soluciones` — los tres frentes (presencia, operación, clientes)
+4. `CasosHome` — los tres casos, mismo peso visual
+5. `ProductosUsers` — ACTIIVA; "cuando un giro se repite, lo convertimos en producto"
+6. `Equipo` — quién responde por el proyecto
+7. `ComoTrabajamos` — los 5 pasos del proceso + disciplinas
+8. `CentroAtencion` — postventa: atención, seguimiento y cambios
+9. `MotorCTA` — el Motor como puerta de entrada
+10. `Testimonials` — dos clientes
+11. `FinalCTA` — dos rutas según qué tan definido esté el proyecto
+12. `Footer`
+
+El recorrido es: qué hacemos → qué compras → evidencia → producto propio →
+quién lo construye → cómo trabajamos → qué pasa después → cómo empezar.
+
+> **Nota:** `components/sections/` contiene además secciones huérfanas de fases
+> anteriores que ya no importa nadie (`Portfolio`, `Manifesto`, `FAQ`,
+> `Services`, `Team`, `ClientLogos`, `Oferta`, `Progresion`, `Mantenimiento`,
+> `Capacidades`, `CasoDestacado`, `Differentiators`, `Process`, `Productos`,
+> `TrustStrip`, `Blog`). Están pendientes de limpieza; no son parte del sitio.
+
+---
+
+## Fuentes de verdad
+
+| Archivo | Contiene |
+|---|---|
+| `lib/site-config.ts` | Precios, contacto, horarios, datos legales, productos vigentes |
+| `lib/solutions.ts` | Las 5 soluciones y su metadata |
+| `lib/projects.ts` | Los 3 casos de cliente |
+| `lib/products-media.ts` | Presentación y material de los productos propios |
+| `lib/blog.ts` | Los 4 artículos |
+| `lib/knowledge-base.ts` | Base de conocimiento del Centro de Atención |
+
+**Regla:** ningún precio se escribe a mano fuera de `site-config`. Se interpola
+desde `siteConfig.pricing`, incluido en metadata y en el resultado del Motor.
+
+---
+
+## Motor de Análisis
+
+| | |
+|---|---|
+| Frontend | `app/analisis/MotorClient.tsx` — client component |
+| Preguntas | `lib/motor/questions.ts` — **5 pasos, 12 preguntas** |
+| Diagnóstico | `lib/motor/diagnose.ts` — se calcula **en el navegador** |
+| Modelo | `lib/motor/types.ts` — 6 dimensiones, 4 estados categóricos |
+| Resultado | `components/motor/DiagnosisView.tsx` |
+| Lead | `app/api/analisis/calcular/route.ts` → Supabase + Resend |
+| Progreso | `app/api/analisis/guardar-progreso/route.ts` |
+| Admin DB | `lib/supabase-admin.ts` · esquema en `supabase/schema.sql` |
+| Banco | `npx tsx scripts/motor-qa.mts` |
+
+**Qué entrega:** prioridades por dimensión, qué construir primero, qué puede
+esperar y un punto de partida de inversión.
+**Qué no entrega:** cotización, desglose por módulo, tiempo de entrega ni
+agenda. Nada de eso existe en el flujo y no debe anunciarse.
+
+El resultado se muestra **antes** de pedir datos de contacto.
+
+---
+
+## Centro de Atención
+
+Determinista, sin LLM. `lib/support/` (motor, clasificación, recuperación,
+escalamiento, redacción de PII) sobre `lib/knowledge-base.ts`.
+
+- Widget flotante: `components/support/SupportWidget.tsx` — carga diferida, no
+  aparece en `/centro-de-atencion` ni en `/analisis`.
+- Página completa: `app/centro-de-atencion/page.tsx`.
+- `lib/support/ai-provider.ts` es una costura opcional: sin `SUPPORT_AI_PROVIDER`
+  el Centro funciona determinista.
+- Banco: `npx tsx scripts/support-qa.mts`.
+
+---
+
+## Medición
+
+Todo pasa por `trackEvent` (`lib/analytics/track.ts`). Ningún componente habla
+con Google, Meta o Vercel directamente. `ClickTracker` deduce el evento del
+destino del enlace, así que un CTA nuevo queda medido por existir.
+
+**Nada se carga sin consentimiento** — ni GA4, ni Meta, ni Vercel Analytics. El
+catálogo cerrado de eventos está en `lib/analytics/events.ts`.
+
+Detalle en `docs/medicion-y-campanas.md`.
+
+---
+
+## Identidad visual
+
+**Tipografía** (`app/layout.tsx`, ambas con `display: "optional"`):
+
+- DM Sans → `--font-sans`
+- JetBrains Mono → `--font-mono`, para índices, etiquetas y datos
+
+**Paleta** (hex directo en los componentes):
+
+| Valor | Uso |
+|---|---|
+| `#4cfc0f` | Acento: CTAs, índices, marcadores |
+| `#0A0A0A` | Fondo oscuro: hero, secciones oscuras, footer |
+| `#0E0E0E` | Superficie sobre fondo oscuro (tarjetas) |
+| `#F7F7F5` | Fondo claro alterno |
+| `#FFFFFF` | Fondo claro |
+| `#B0B0B0` | Texto secundario sobre oscuro |
+| `#8A8A8A` | Texto terciario |
+| `#1A1A1A` · `#1F1F1F` · `#2E2E2E` | Bordes y separadores |
+
+> `app/globals.css` define además un sistema de tokens OKLCH heredado de shadcn
+> que hoy **no se usa** en los componentes. Es deuda conocida: conviven dos
+> sistemas y solo uno está vivo.
+
+**Rejilla técnica:** la clase `.grid-tech` (en `globals.css`) es el patrón de
+fondo que aparece en el hero y en los avatares.
+
+---
+
+## Componentes de medios
+
+`components/ui/MediaFrame.tsx` es el componente vigente para casos y productos.
+Un slot (`lib/media.ts`) declara `video` o `image`, y cuando todavía no hay
+material real usa `placeholder: true` con una portada editorial — nunca una
+interfaz simulada.
+
+**Convención:** un `video: "x"` con `dir: "d"` espera
 
 ```
-imgs/
-  hero/
-    sec-1-portrait.webp      → foto retrato del equipo (hero)
-    sec-1-bg-lines.webp      → textura de fondo del hero
-    sec-1-shape-25.webp      → elemento decorativo esquina superior derecha
-    sec-1-alien.webp         → elemento decorativo flotante (hero)
-  portfolio/
-    sec-3-project-1.webp     → Greek Gym — reemplazar con screenshot real
-    sec-3-project-2.webp     → Las Frescas — reemplazar con screenshot real
-    sec-3-project-3.webp     → ACTIIVA — reemplazar con screenshot real
-    sec-3-project-4.webp     → MEDIICA — reemplazar con screenshot real
-    sec-3-project-5.webp     → decorativo en sidebar del portafolio
-  team/
-    sec-6-member-1.webp      → foto miembro equipo (Desarrollo)
-    sec-6-member-2.webp      → foto miembro equipo (Diseño)
-    sec-6-member-3.webp      → foto miembro equipo (Estrategia)
-    sec-6-member-4.webp      → foto miembro equipo (Marketing)
-    avatar-1.webp            → avatar testimonio Carlos M.
-    avatar-2.webp            → avatar testimonio Daniela R.
-    avatar-3.webp            → avatar testimonio Alejandro V.
-  clients/
-    logo-brand-01.webp       → logo Greek Gym (marquee)
-    logo-brand-02.webp       → logo Las Frescas (marquee)
-    logo-brand-03.webp       → logo ACTIIVA (marquee)
-    logo-brand-04.webp       → logo MEDIICA (marquee)
-    logo-brand-05.webp       → logo users.mx (marquee)
-  blog/
-    thumb-1.webp             → thumbnail artículo 1
-    thumb-2.webp             → thumbnail artículo 2
-    thumb-3.webp             → thumbnail artículo 3
-    thumb-4.webp             → thumbnail artículo 4
-  bg/
-    bg-img.webp              → textura de fondo (Testimonials, FinalCTA)
-    bg-img-2.webp            → textura decorativa (Manifesto)
-    bg-img-3.webp            → imagen strip (Manifesto)
-    scene.webp               → foto de escena (Process, Differentiators)
+/imgs/d/x.webm   ·   /imgs/d/x.mp4   ·   /imgs/d/x-poster.webp
+```
+
+Sin `dir`, la carpeta por defecto es `/imgs/video/`.
+
+---
+
+## Assets en uso
+
+```
+public/
+  favicon.svg · favicon-32.png · apple-touch-icon.png
   logos/
-    imagotipo_user.svg       → logo verde+negro (Header oscuro)
-    imagotipo_user_black.svg → logo negro+verde (Header blanco, Footer)
-    isotipo_user.svg         → favicon
-    isotipo_user_black.svg   → variante de favicon
+    imagotipo_user.svg          header sobre fondo oscuro, footer, JSON-LD
+    imagotipo_user_black.svg    header sobre fondo claro
+    products/actiiva.svg        logotipo de ACTIIVA
+  imgs/
+    portfolio/motor-analisis.webp     captura del reporte (MotorCTA)
+    blog/thumb-1..4.webp              miniaturas de artículos
+    video/
+      greekgym.{webm,mp4}       + greekgym-poster.webp
+      greekgym-admin.{webm,mp4} + greekgym-admin-poster.webp
+      lasfrescas.{webm,mp4}     + lasfrescas-poster.webp
+    projects/llevelin/
+      preview · caja · inventario · reporte   (.webm, .mp4, -poster.webp)
 ```
 
----
-
-## Motor de Análisis (`/analisis`)
-
-- **Frontend:** `app/analisis/page.tsx` — 6 pasos, client component
-- **Backend:** `app/api/analisis/calcular/route.ts` — cálculo + Supabase + Resend
-- **Guardado progresivo:** `app/api/analisis/guardar-progreso/route.ts`
-- **Admin client:** `lib/supabase-admin.ts`
-- **Schema DB:** `supabase/schema.sql`
-
-Variables de entorno requeridas (`.env.local`):
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `RESEND_API_KEY`
-- `RESEND_FROM`
-- `NOTIFICATION_EMAIL`
+> El resto de `public/imgs/` (`hero/`, `bg/`, `team/`, `services/`, `clients/`
+> y los `portfolio/sec-3-*`) son restos de la plantilla original: no los pide
+> ninguna ruta viva. Pendiente de limpieza.
 
 ---
 
-## Paleta de colores
+## Variables de entorno
 
-| Token | Valor | Uso |
-|-------|-------|-----|
-| Accent | `#4cfc0f` | CTAs, íconos activos, acentos verdes |
-| Background dark | `#0A0A0A` | Hero, secciones oscuras, footer |
-| Background light | `#F5F5F5` | Secciones alternadas claras |
-| Text primary | `#0A0A0A` | Títulos y cuerpo sobre fondo claro |
-| Text muted | `#888` | Texto secundario |
-| Accent tint | `#f0ffe8` | Fondos de confirmación/info en el motor |
+Solo nombres; los valores van en Vercel. Ver `README.md` para la tabla completa.
 
----
+Requeridas para captura de leads: `NEXT_PUBLIC_SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM`,
+`NOTIFICATION_EMAIL`.
 
-## Scroll snap
-
-Secciones con `snap-start` (se centran en pantalla al hacer scroll):
-Hero, ClientLogos, Process, Differentiators, Testimonials, MotorCTA, Team, FinalCTA
-
-Secciones SIN snap (scroll libre — contenido largo):
-Portfolio, FAQ, Blog
+Opcionales: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID`,
+`NEXT_PUBLIC_GOOGLE_ADS_ID`, `SUPPORT_AI_PROVIDER`.

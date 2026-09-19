@@ -26,8 +26,8 @@ export default function FinalCTA() {
               No sé por dónde empezar
             </p>
             <p className="text-[#9E9E9E] text-sm mt-3 leading-relaxed flex-1">
-              Contesta 6 pasos sobre tu negocio y recibe un diagnóstico con
-              estimado de inversión.
+              Contesta 5 pasos sobre tu negocio y recibe un diagnóstico con
+              prioridades y un punto de partida de inversión.
             </p>
             <Link
               href="/analisis"

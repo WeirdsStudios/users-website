@@ -1,3 +1,4 @@
+import { siteConfig } from "@/lib/site-config"
 import type { Answers } from "./questions"
 import {
   DIMENSIONS,
@@ -425,10 +426,13 @@ export function diagnose(a: Answers, ref = newRef()): Diagnosis {
     recomendacion,
     razones: buildReasons(a, dimensions, recomendacion),
     inversion: {
+      // El precio de entrada sale de siteConfig, no escrito a mano: si cambia
+      // la cifra comercial, el diagnóstico no puede quedarse anunciando la
+      // anterior.
       entrada:
         recomendacion.category === "no_custom"
           ? "Sin inversión recomendada por ahora"
-          : "Proyectos desde $11,900 MXN",
+          : `Proyectos desde ${siteConfig.pricing.startingPriceLabel}`,
       nota: requiereCotizacion
         ? "El alcance exacto depende de las funciones, integraciones y complejidad. Lo cotizamos después de revisarlo contigo."
         : "El precio final depende del contenido y de las funciones que se incluyan.",
