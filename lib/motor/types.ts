@@ -1,3 +1,5 @@
+import type { OfferId } from "@/lib/site-config"
+
 /**
  * Motor de Análisis — modelo del diagnóstico.
  *
@@ -108,7 +110,17 @@ export interface Opportunity {
   solution?: string
 }
 
-/** Familia de recomendación. Es lo único que viaja a analytics. */
+/**
+ * Familia de DIAGNÓSTICO. Describe qué le pasa al negocio.
+ *
+ * NO es el nivel comercial. Se conserva porque sigue siendo útil —separa
+ * "necesita presencia" de "necesita operación" de "no necesita nada"— y
+ * porque ya viaja a analytics y a la base desde hace meses; cambiarla
+ * rompería la comparación histórica de los leads.
+ *
+ * Lo que cambia es que ya no se usa como sustituto del precio: para eso
+ * está `offer`.
+ */
 export type RecommendationCategory =
   | "web"
   | "web_plus"
@@ -118,14 +130,36 @@ export type RecommendationCategory =
 
 export interface Recommendation {
   category: RecommendationCategory
+  /**
+   * Nivel comercial desde el que parte la propuesta.
+   *
+   * SEPARADO DEL DIAGNÓSTICO A PROPÓSITO. Antes el precio salía de una
+   * constante global y decía "proyectos desde $12,900" incluso cuando la
+   * recomendación era una operación completa: un piso tres veces menor al
+   * nivel que acababa de recomendar.
+   *
+   * `null` significa que no hay proyecto que vender ahora mismo —y eso es una
+   * respuesta legítima, no un hueco que rellenar.
+   */
+  offer: OfferId | null
   title: string
   body: string
-  /** Producto propio cuando el giro y las necesidades encajan. */
+  /**
+   * Producto propio cuando el giro y las necesidades encajan.
+   *
+   * Convive con `offer`: el producto es un camino futuro sin fecha, y `offer`
+   * es lo que sí se puede resolver hoy. Nunca lleva precio.
+   */
   product?: "ACTIIVA"
   /** Qué construiríamos primero. */
   fase_inicial: string[]
   /** Qué puede esperar a una segunda etapa. */
   evolucion: string[]
+  /**
+   * true cuando el nivel se eligió de forma conservadora y el descubrimiento
+   * podría revelar que hace falta uno mayor. Se dice, no se esconde.
+   */
+  podriaEscalar?: boolean
 }
 
 export interface Diagnosis {
@@ -142,6 +176,11 @@ export interface Diagnosis {
   razones: string[]
   /** Contexto de inversión. Nunca una cifra cerrada del proyecto. */
   inversion: {
+    /** Nombre del nivel, p. ej. "Web Activa". Vacío cuando no hay proyecto. */
+    nivel: string | null
+    /** "$12,900 MXN" del nivel recomendado. Vacío cuando no hay proyecto. */
+    desde: string | null
+    /** Frase completa ya armada, para superficies que solo quieren una línea. */
     entrada: string
     nota: string
     /** true cuando el alcance obliga a cotizar en vez de dar un punto de partida. */
