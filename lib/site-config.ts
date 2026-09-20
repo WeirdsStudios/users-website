@@ -349,6 +349,45 @@ export const siteConfig = {
   ] as MaintenancePlan[],
 
   /**
+   * Condiciones comerciales del proyecto.
+   *
+   * DE DÓNDE SALEN: estaban vivas en el Centro de Atención (pagos, contrato,
+   * propiedad) y otras solo en componentes que ya nadie renderiza —FAQ.tsx,
+   * Mantenimiento.tsx—, es decir invisibles para quien visita el sitio pese a
+   * seguir siendo política real. Se suben aquí para que las páginas las citen
+   * desde un solo lugar en vez de resucitar código muerto.
+   *
+   * REGLA: aquí solo entra lo que se puede sostener frente a un cliente. Lo
+   * que no esté decidido no se inventa: simplemente no está.
+   */
+  terms: {
+    payment: {
+      upfront: 60,
+      onDelivery: 40,
+      get label() {
+        return `${this.upfront}% al iniciar · ${this.onDelivery}% al entregar`
+      },
+      note: "El pago final se libera cuando apruebas el resultado, no antes.",
+    },
+    /** El pago final depende de la aprobación del cliente. */
+    approvalGuarantee:
+      "No se libera el pago final hasta que apruebes el proyecto. Si algo no cumple lo acordado, seguimos ajustando.",
+    /** Rondas de revisión incluidas en el alcance acordado. */
+    revisionRounds: 3,
+    /** Soporte incluido después de publicar, antes de cualquier plan. */
+    supportIncludedMonths: 1,
+    /** Se escribe antes de arrancar. */
+    writtenScope:
+      "Antes de arrancar dejamos por escrito el alcance, los tiempos y las condiciones acordadas.",
+    /** Propiedad del resultado. */
+    ownership:
+      "El proyecto que pagaste es tuyo, incluidos sus datos. Si algún día trabajas con alguien más, coordinamos la entrega de lo que corresponda.",
+    /** Lo que se sale de lo acordado no entra en silencio. */
+    scopeChanges:
+      "Si a media obra aparece algo que no estaba contemplado, se cotiza aparte antes de construirlo.",
+  },
+
+  /**
    * Qué pasa con el dominio y el hosting. Política decidida, no ambigüedad.
    *
    * Web Activa incluye dominio y hosting el primer año. Al terminar ese año

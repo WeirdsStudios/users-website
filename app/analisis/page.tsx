@@ -9,7 +9,7 @@ import MotorClient from "./MotorClient"
  */
 export default function AnalisisPage() {
   return (
-    <main className="bg-[#0A0A0A] min-h-dvh">
+    <main id="contenido" className="bg-[#0A0A0A] min-h-dvh">
       <MotorClient />
     </main>
   )

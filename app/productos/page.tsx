@@ -43,7 +43,7 @@ export default function ProductosPage() {
       />
       <Header />
       <ViewTracker event="product_viewed" slug={"productos"} />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <section className="relative pt-28 pb-10 lg:pt-36 lg:pb-16 overflow-hidden">
           <div
             aria-hidden="true"

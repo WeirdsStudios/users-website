@@ -28,7 +28,7 @@ export default function NotFound() {
   return (
     <>
       <Header />
-      <main className="bg-[#0A0A0A] text-white min-h-[70vh]">
+      <main id="contenido" className="bg-[#0A0A0A] text-white min-h-[70vh]">
         <section className="relative pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden">
           <div
             aria-hidden="true"

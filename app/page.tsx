@@ -39,7 +39,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main>
+      <main id="contenido">
         <Hero />
         <Capas />
         <Niveles />

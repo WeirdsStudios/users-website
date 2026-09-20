@@ -109,30 +109,22 @@ export default function Footer() {
                 Empresa
               </h2>
               <ul className="mt-3 space-y-1">
-                <li>
-                  <Link
-                    href="/#proceso"
-                    className="text-sm text-[#8A8A8A] hover:text-white transition-colors inline-block py-1.5"
-                  >
-                    Cómo trabajamos
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/analisis"
-                    className="text-sm text-[#8A8A8A] hover:text-white transition-colors inline-block py-1.5"
-                  >
-                    Analizar mi negocio
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/ayuda"
-                    className="text-sm text-[#8A8A8A] hover:text-white transition-colors inline-block py-1.5"
-                  >
-                    Central de Ayuda
-                  </Link>
-                </li>
+                {[
+                  { href: "/nosotros", label: "Nosotros" },
+                  { href: "/contacto", label: "Contacto" },
+                  { href: "/#proceso", label: "Cómo trabajamos" },
+                  { href: "/analisis", label: "Analizar mi negocio" },
+                  { href: "/ayuda", label: "Central de Ayuda" },
+                ].map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="text-sm text-[#8A8A8A] hover:text-white transition-colors inline-block py-1.5"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 

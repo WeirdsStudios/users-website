@@ -37,7 +37,7 @@ export default function ProyectosPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         {/* Encabezado */}
         <section className="relative pt-28 pb-10 lg:pt-36 lg:pb-16 overflow-hidden">
           <div

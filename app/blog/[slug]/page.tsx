@@ -105,7 +105,7 @@ export default async function BlogPostPage({
       />
       <ViewTracker event="article_viewed" slug={post.slug} />
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <article>
           {/* Encabezado */}
           <header className="relative pt-28 pb-8 lg:pt-36 lg:pb-10 overflow-hidden">

@@ -14,7 +14,7 @@ export default function AyudaPage() {
   return (
     <>
       <Header />
-      <main className="bg-[#0A0A0A] text-white">
+      <main id="contenido" className="bg-[#0A0A0A] text-white">
         <header className="relative pt-28 pb-8 lg:pt-36 lg:pb-12 overflow-hidden">
           <div
             aria-hidden="true"

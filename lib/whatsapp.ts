@@ -10,6 +10,7 @@ const WA_MESSAGES = {
   soporte:  "Hola, necesito ayuda con un proyecto que USERS desarrolló.",
   faq:      "Hola, tengo dudas sobre precios y planes de users.mx.",
   footer:   "Hola, quiero contactar a users.mx.",
+  contacto: "Hola, vengo de users.mx. Ya sé más o menos qué necesito y quiero platicarlo.",
 } as const
 
 export type WhatsAppOrigin = keyof typeof WA_MESSAGES

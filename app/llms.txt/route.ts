@@ -107,6 +107,26 @@ registro ni tarjeta para ver el resultado.
 3. Desarrollo ágil con entregas parciales visibles
 4. Lanzamiento y optimización
 
+## La empresa
+
+USERS es un estudio mexicano de desarrollo. Trabaja con una estructura
+founder-led: la persona que entiende el negocio del cliente es la misma que
+define qué se construye y responde por la entrega. Quién responde, cómo se
+trabaja y en qué condiciones están en ${url}/nosotros.
+
+Condiciones de proyecto vigentes: pagos ${siteConfig.terms.payment.upfront}/${siteConfig.terms.payment.onDelivery}
+(${siteConfig.terms.payment.upfront}% al iniciar, ${siteConfig.terms.payment.onDelivery}% al entregar), el pago final se libera cuando el
+cliente aprueba; ${siteConfig.terms.revisionRounds} rondas de revisión dentro del alcance acordado; alcance,
+tiempos y condiciones por escrito antes de arrancar; el proyecto pagado es del
+cliente; soporte incluido el primer mes después de publicar.
+
+## Contacto directo
+
+Tres rutas, en ${url}/contacto: el Motor de Análisis si el negocio todavía no
+sabe qué necesita, WhatsApp si ya lo sabe, y correo. No hay formulario largo ni
+tiempo de respuesta publicado; la atención humana ocurre en el horario indicado
+abajo.
+
 ## Recursos
 
 - Blog (${url}/blog): notas sobre cómo decidir qué construir, cuándo conviene

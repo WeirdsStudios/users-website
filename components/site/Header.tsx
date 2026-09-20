@@ -6,14 +6,19 @@ import Image from "next/image"
 import { getWhatsAppLink } from "@/lib/whatsapp"
 
 /**
- * Navegación mínima: cuatro destinos que corresponden al recorrido real de la
- * home. Ayuda y Blog viven en el footer — no compiten aquí.
+ * Navegación mínima: cinco destinos que corresponden al recorrido real del
+ * sitio. Ayuda y Blog viven en el footer — no compiten aquí.
+ *
+ * "Contacto" apuntaba a `/#contacto`, un ancla de la home: desde cualquier
+ * otra página obligaba a volver al inicio y bajar. Ahora es una ruta propia,
+ * que además se puede poner en una firma de correo o en un anuncio.
  */
 const navLinks = [
   { label: "Soluciones", href: "/soluciones" },
   { label: "Proyectos", href: "/proyectos" },
   { label: "Productos", href: "/productos" },
-  { label: "Contacto", href: "/#contacto" },
+  { label: "Nosotros", href: "/nosotros" },
+  { label: "Contacto", href: "/contacto" },
 ]
 
 export default function Header() {

@@ -90,6 +90,7 @@ export const KB_CATEGORIES: KbCategory[] = [
   },
 ]
 
+const TERMS = siteConfig.terms
 const WEB_ACTIVA = siteConfig.pricing.offerLabel("web-activa")
 const PLATAFORMA = siteConfig.pricing.offerLabel("plataforma")
 const APP = siteConfig.pricing.offerLabel("app-a-medida")
@@ -217,6 +218,16 @@ export const KB_ENTRIES: KbEntry[] = [
       "Sí. La etapa de diseño existe precisamente para eso: cambiar una estructura toma horas, cambiar un sistema ya construido toma semanas. Los cambios dentro de lo acordado entran en el proceso normal de revisión.",
     mode: "GUIDED",
     tags: ["cambios", "modificaciones", "revisiones", "ajustes"],
+    related: [{ label: "Si cambia el alcance", href: "/ayuda#cambio-de-alcance" }],
+  },
+  {
+    id: "rondas-de-revision",
+    category: "durante",
+    question: "¿Cuántas rondas de revisión incluye?",
+    answer:
+      `El alcance acordado incluye ${TERMS.revisionRounds} rondas de revisión. Están para afinar lo que ya se definió; una funcionalidad nueva o una integración que no estaba es cambio de alcance y se cotiza aparte.`,
+    mode: "GUIDED",
+    tags: ["revisiones", "rondas", "cuántos cambios", "correcciones", "ajustes incluidos"],
     related: [{ label: "Si cambia el alcance", href: "/ayuda#cambio-de-alcance" }],
   },
   {
@@ -503,7 +514,7 @@ export const KB_ENTRIES: KbEntry[] = [
     category: "empezar",
     question: "¿Cómo son los pagos? ¿Hay anticipo?",
     answer:
-      "Trabajamos con esquema 60/40: 60% al iniciar el proyecto y 40% al entregarlo. El pago final se libera cuando apruebas el resultado, no antes.",
+      `Trabajamos con esquema ${TERMS.payment.upfront}/${TERMS.payment.onDelivery}: ${TERMS.payment.upfront}% al iniciar el proyecto y ${TERMS.payment.onDelivery}% al entregarlo. ${TERMS.payment.note}`,
     mode: "INFO",
     tags: ["pago", "anticipo", "60/40", "cómo se paga", "forma de pago", "depósito"],
   },
