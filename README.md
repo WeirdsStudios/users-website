@@ -1,4 +1,4 @@
-# user-core
+# USERS Website
 
 Sitio comercial de **USERS** — [www.users.mx](https://www.users.mx).
 
@@ -164,7 +164,8 @@ al navegador.
 
 ## Deployment
 
-Vercel, proyecto `user-core`. `main` es la rama que se publica.
+Repositorio `users-website`; Vercel conserva por ahora el nombre técnico
+`user-core`. `main` es la rama que se publica.
 
 | | |
 |---|---|
