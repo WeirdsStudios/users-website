@@ -9,6 +9,8 @@ export default function AuthHashRedirect() {
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1))
     const type = hash.get("type")
+    const accessToken = hash.get("access_token")
+    const refreshToken = hash.get("refresh_token")
 
     if (!type || !RECOVERY_TYPES.has(type)) return
 
@@ -22,7 +24,12 @@ export default function AuthHashRedirect() {
       return
     }
 
-    const supabase = createBrowserClient(url, key)
+    // The default Supabase recovery email redirects with tokens in the URL
+    // fragment. Set the session ourselves instead of depending on the SDK's
+    // automatic hash listener, which can finish after this component mounts.
+    const supabase = createBrowserClient(url, key, {
+      auth: { detectSessionInUrl: false },
+    })
     let handled = false
 
     const continueToSetup = () => {
@@ -31,27 +38,30 @@ export default function AuthHashRedirect() {
       window.location.replace("/cuenta/configurar")
     }
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (
-        session &&
-        (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN")
-      ) {
-        continueToSetup()
+    void (async () => {
+      if (accessToken && refreshToken) {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (!error && data.session) {
+          continueToSetup()
+          return
+        }
       }
-    })
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) continueToSetup()
-    })
+      // Keep the fallback for existing sessions (for example, a magic link
+      // opened in a tab that already completed the hash exchange).
+      const { data } = await supabase.auth.getSession()
+      if (data.session) {
+        continueToSetup()
+        return
+      }
 
-    const timeout = window.setTimeout(() => {
-      if (!handled) window.location.replace("/acceso?error=enlace-invalido")
-    }, 5_000)
+      window.location.replace("/acceso?error=enlace-invalido")
+    })()
 
-    return () => {
-      listener.subscription.unsubscribe()
-      window.clearTimeout(timeout)
-    }
+    return undefined
   }, [])
 
   return null
