@@ -23,14 +23,35 @@ export default function AuthHashRedirect() {
     }
 
     const supabase = createBrowserClient(url, key)
+    let handled = false
 
-    void supabase.auth.getSession().then(({ data, error }) => {
-      window.location.replace(
-        data.session && !error
-          ? "/cuenta/configurar"
-          : "/acceso?error=enlace-invalido"
-      )
+    const continueToSetup = () => {
+      if (handled) return
+      handled = true
+      window.location.replace("/cuenta/configurar")
+    }
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (
+        session &&
+        (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN")
+      ) {
+        continueToSetup()
+      }
     })
+
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) continueToSetup()
+    })
+
+    const timeout = window.setTimeout(() => {
+      if (!handled) window.location.replace("/acceso?error=enlace-invalido")
+    }, 5_000)
+
+    return () => {
+      listener.subscription.unsubscribe()
+      window.clearTimeout(timeout)
+    }
   }, [])
 
   return null
