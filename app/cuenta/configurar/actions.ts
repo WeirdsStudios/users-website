@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { requireAccountIdentity } from "@/lib/account-auth"
+import { isStaffEmail, requireAccountIdentity } from "@/lib/account-auth"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 export type SetupActionState = { message?: string }
@@ -10,7 +10,7 @@ export async function finishAccountSetup(
   _state: SetupActionState,
   formData: FormData
 ): Promise<SetupActionState> {
-  await requireAccountIdentity()
+  const identity = await requireAccountIdentity()
   const password = String(formData.get("password") ?? "")
   const confirmation = String(formData.get("confirmation") ?? "")
   if (password.length < 12) return { message: "Usa al menos 12 caracteres." }
@@ -19,6 +19,11 @@ export async function finishAccountSetup(
   const supabase = await createSupabaseServerClient()
   const { error: passwordError } = await supabase.auth.updateUser({ password })
   if (passwordError) return { message: "No pudimos guardar tu contraseña." }
+
+  // USERS staff accounts access the internal CRM and are not necessarily
+  // members of a client organization. Client accounts continue below to
+  // activate their pending organization membership.
+  if (isStaffEmail(identity.email)) redirect("/crm")
 
   const { data, error: activationError } = await supabase.rpc(
     "activate_own_organization_memberships"

@@ -18,6 +18,10 @@ function staffEmails(): Set<string> {
   )
 }
 
+export function isStaffEmail(email: string): boolean {
+  return staffEmails().has(email.trim().toLowerCase())
+}
+
 export const getAccountIdentity = cache(async (): Promise<AccountIdentity | null> => {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.auth.getClaims()
@@ -38,7 +42,7 @@ export async function requireAccountIdentity(): Promise<AccountIdentity> {
 export async function requireStaffIdentity(): Promise<AccountIdentity> {
   const identity = await getAccountIdentity()
   if (!identity) redirect("/acceso?next=/crm")
-  if (!staffEmails().has(identity.email)) redirect("/cuenta")
+  if (!isStaffEmail(identity.email)) redirect("/cuenta")
   return identity
 }
 
