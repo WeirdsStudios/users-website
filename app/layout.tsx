@@ -1,11 +1,8 @@
 import type { Metadata } from "next"
 import { DM_Sans, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
-import WhatsAppButton from "@/components/site/WhatsAppButton"
 import SmoothScroll from "@/components/site/SmoothScroll"
-import SupportWidget from "@/components/support/SupportWidget"
-import Analytics from "@/components/analytics/Analytics"
-import ConsentBanner from "@/components/consent/ConsentBanner"
+import PrivateAwareUtilities from "@/components/site/PrivateAwareUtilities"
 import { siteConfig } from "@/lib/site-config"
 
 /**
@@ -111,10 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <SmoothScroll />
         {children}
-        <SupportWidget />
-        <WhatsAppButton />
-        <Analytics />
-        <ConsentBanner />
+        <PrivateAwareUtilities />
       </body>
     </html>
   )

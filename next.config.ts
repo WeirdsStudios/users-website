@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@weirdsstudios/users-core"],
+
   typescript: {
     ignoreBuildErrors: false,
   },

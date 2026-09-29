@@ -4,10 +4,9 @@ Sitio comercial de **USERS** — [www.users.mx](https://www.users.mx).
 
 Es la superficie pública del negocio: qué construimos, para quién, con qué
 evidencia, y por dónde entra un prospecto. Incluye el **Motor de Análisis**
-(`/analisis`), que es hoy la principal vía de entrada de leads.
-
-No es una plataforma ni un producto multi-tenant. Es un sitio de contenido con
-dos endpoints de captura y un centro de atención determinista.
+(`/analisis`), que es hoy la principal vía de entrada de leads. La primera
+rebanada de CRM y Client Console vive en el mismo producto, separada de las
+rutas públicas y construida sobre USERS Core.
 
 ---
 
@@ -20,6 +19,7 @@ dos endpoints de captura y un centro de atención determinista.
 | Estilos | Tailwind CSS v4 — configuración en CSS, **no hay `tailwind.config.ts`** |
 | Componentes | shadcn/ui estilo `base-nova` sobre `@base-ui/react` (no Radix) |
 | Datos | Supabase (tabla `analisis_negocio`) |
+| Core compartido | `@weirdsstudios/users-core` |
 | Correo | Resend |
 | Medición | Vercel Analytics + Speed Insights, GA4 y Meta Pixel — todos tras consentimiento |
 | Hosting | Vercel |
@@ -69,6 +69,10 @@ app/                      rutas (App Router)
   blog/                   índice + [slug]
   aviso-de-privacidad/
   api/analisis/           calcular · guardar-progreso
+  acceso/                 inicio de sesión de clientes y personal
+  crm/                    conversión de prospecto a cliente
+  cuenta/                 Client Console aislada por organización
+  auth/confirm/           confirmación SSR de invitaciones
   hola/                   entrada corta para QR e impresos (307 + UTM)
   llms.txt/               resumen factual para modelos
   robots.ts · sitemap.ts · opengraph-image.tsx
@@ -92,6 +96,7 @@ lib/
   knowledge-base.ts       base de conocimiento del Centro
 
 supabase/schema.sql       esquema de la tabla de análisis
+supabase/migrations/      adopciones deliberadas de esquema
 docs/                     lanzamiento, medición, publicidad, post-deploy
 scripts/                  bancos de prueba y utilidades de desarrollo
 ```
@@ -145,6 +150,15 @@ Variables. Nunca se versionan: `.env*` está en `.gitignore`.
 | `RESEND_FROM` | Remitente verificado |
 | `NOTIFICATION_EMAIL` | Destinatario del aviso de lead |
 
+### Requeridas para CRM y Client Console
+
+| Variable | Para qué |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Sesiones SSR del cliente |
+| `SUPABASE_SECRET_KEY` | Invitaciones y conversión server-side |
+| `USERS_STAFF_EMAILS` | Lista explícita de personal con acceso al CRM |
+| `NEXT_PUBLIC_SITE_URL` | Retorno seguro de invitaciones |
+
 ### Opcionales
 
 | Variable | Para qué |
@@ -195,4 +209,5 @@ Repositorio `users-website`; Vercel conserva por ahora el nombre técnico
 | `docs/medicion-y-campanas.md` | Cómo está instrumentada la medición y qué URLs usar |
 | `docs/advertising-readiness.md` | Qué falta configurar para publicidad |
 | `docs/post-deploy.md` | Tareas que solo aplican contra el dominio real |
+| `docs/client-console-v0.1.md` | Alcance y condiciones de despliegue del CRM/Client Console |
 | `AGENTS.md` / `CLAUDE.md` | Contexto para agentes de código |
