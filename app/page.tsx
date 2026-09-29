@@ -11,6 +11,7 @@ import CentroAtencion from "@/components/sections/CentroAtencion"
 import MotorCTA from "@/components/sections/MotorCTA"
 import Testimonials from "@/components/sections/Testimonials"
 import FinalCTA from "@/components/sections/FinalCTA"
+import AuthHashRedirect from "@/components/auth/AuthHashRedirect"
 
 /**
  * Recorrido:
@@ -38,6 +39,7 @@ import FinalCTA from "@/components/sections/FinalCTA"
 export default function HomePage() {
   return (
     <>
+      <AuthHashRedirect />
       <Header />
       <main id="contenido">
         <Hero />
