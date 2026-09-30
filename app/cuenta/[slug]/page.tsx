@@ -33,12 +33,13 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
           <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600">Tu cuenta está aislada de las demás organizaciones.</div>
         </header>
 
-        <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {[
             ["Proyectos", portal.projects.length, "Trabajo publicado por USERS"],
             ["Entregables", portal.deliverables.length, "Materiales y siguientes entregas"],
             ["Facturas", portal.invoices.length, "Documentos de tu relación con USERS"],
             ["Solicitudes", portal.support.length, "Conversaciones de soporte"],
+            ["Administración", portal.consoles.filter((console) => console.status === "active").length, "Catálogo, clientes, cotizaciones y ventas"],
           ].map(([label, count, detail]) => (
             <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm" key={String(label)}>
               <p className="text-sm text-zinc-500">{label}</p><p className="mt-2 text-3xl font-bold">{count}</p><p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
@@ -76,9 +77,10 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
           <aside className="space-y-6">
             <section className="rounded-2xl border border-zinc-200 bg-zinc-950 p-6 text-white shadow-sm">
               <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#4cfc0f]">Operación de tu negocio</p>
-              <h2 className="mt-3 text-xl font-semibold">Tu consola operativa</h2>
+              <h2 className="mt-3 text-xl font-semibold">Administra tu negocio</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-300">Aquí administras tu catálogo y ofertas, clientes finales, cotizaciones y ventas. Esta consola es exclusiva de tu negocio.</p>
               {portal.consoles.map((console) => <a className="mt-4 block rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950" href={console.url} key={console.id} rel="noreferrer" target="_blank">{console.label} <span className="font-normal text-zinc-500">· {console.status === "active" ? "Disponible" : "En mantenimiento"}</span></a>)}
-              {!portal.consoles.length ? <p className="mt-3 text-sm leading-6 text-zinc-300">Tu consola de catálogo, clientes, cotizaciones y ventas se conecta aquí cuando quede provisionada para tu negocio. Sus datos no viven en USERS ni se comparten con otros clientes.</p> : null}
+              {!portal.consoles.length ? <p className="mt-3 text-sm leading-6 text-zinc-300">Tu portal ya está listo. USERS conectará aquí tu consola exclusiva al activar la operación de catálogo, cotizaciones y ventas.</p> : null}
             </section>
 
             <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">

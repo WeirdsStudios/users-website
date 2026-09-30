@@ -57,8 +57,8 @@ pero no comparte sus tablas `gym_*` con las consolas de clientes ni con ADA.
 2. Portal USERS V1: resumen de cuenta, proyectos, entregables, solicitudes,
    facturas y enlaces seguros a cada consola del cliente. **Entregado:** las
    consultas se aíslan por organización mediante RLS; el personal publica
-   contenido desde `/crm/clientes` y el cliente crea solicitudes desde su
-   cuenta.
+   contenido y vincula/actualiza la consola desde `/crm/clientes`; el cliente
+   crea solicitudes y abre su propia operación desde su cuenta.
 3. Foundation operativa V1: catálogo, clientes, cotizaciones y ventas para el
    primer negocio real que la adopte.
 4. Evaluación de extracción hacia ADA / USERS Core sólo con evidencia de dos
@@ -74,3 +74,14 @@ pero no comparte sus tablas `gym_*` con las consolas de clientes ni con ADA.
   arbitrariamente una web estática existente.
 - No se crean bases, dominios ni consolas por cliente hasta que haya un negocio
   concreto para provisionar.
+
+## Flujo de alta de cliente
+
+1. En `/crm/leads`, USERS convierte el prospecto e invita a su Owner.
+2. El Owner activa su cuenta y entra a `/cuenta/<empresa>`: desde el primer día
+   ve su relación con USERS, soporte, proyectos y documentos.
+3. Cuando su consola independiente está lista, el personal la vincula desde
+   `/crm/clientes` con una URL `https`.
+4. El portal muestra el acceso “Administra tu negocio”; éste abre solamente la
+   consola de esa organización. Sus ventas, clientes y catálogo no pasan por
+   la base compartida de USERS.

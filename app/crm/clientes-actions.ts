@@ -20,7 +20,54 @@ function mapProjectStatus(status: string) {
 
 function refresh() {
   revalidatePath("/crm/clientes")
-  revalidatePath("/cuenta")
+  revalidatePath("/cuenta", "layout")
+}
+
+function httpsUrl(formData: FormData, key: string) {
+  const value = text(formData, key, 500)
+  if (!value) return null
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" ? url.toString() : null
+  } catch {
+    return null
+  }
+}
+
+export async function createConsoleLink(formData: FormData) {
+  const staff = await requireStaffIdentity()
+  const organizationId = text(formData, "organizationId", 60)
+  const label = text(formData, "label", 120)
+  const url = httpsUrl(formData, "url")
+  const status = text(formData, "status", 30) ?? "active"
+  if (!organizationId || !label || !url || !["active", "maintenance"].includes(status)) {
+    throw new Error("Selecciona un cliente, escribe un nombre y usa una URL https válida.")
+  }
+  const supabase = createAdminClient()
+  const { data: organization, error: organizationError } = await supabase.from("organizations").select("id").eq("id", organizationId).maybeSingle()
+  if (organizationError || !organization) throw new Error("No encontramos esa organización cliente.")
+  const { error } = await supabase.from("client_portal_console_links").insert({
+    organization_id: organizationId, label, url, status,
+    description: text(formData, "description", 1000), created_by: staff.userId,
+  })
+  if (error) throw new Error("No se pudo vincular la consola del cliente.")
+  refresh()
+}
+
+export async function updateConsoleLink(formData: FormData) {
+  await requireStaffIdentity()
+  const id = text(formData, "id", 60)
+  const label = text(formData, "label", 120)
+  const url = httpsUrl(formData, "url")
+  const status = text(formData, "status", 30)
+  if (!id || !label || !url || !status || !["active", "maintenance"].includes(status)) {
+    throw new Error("La consola requiere nombre, URL https y estado válido.")
+  }
+  const { error } = await createAdminClient().from("client_portal_console_links").update({
+    label, url, status, description: text(formData, "description", 1000),
+  }).eq("id", id)
+  if (error) throw new Error("No se pudo actualizar la consola del cliente.")
+  refresh()
 }
 
 export async function publishProjectToPortal(formData: FormData) {
