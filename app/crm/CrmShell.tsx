@@ -9,6 +9,7 @@ const navigation = [
   ["Oportunidades", "/crm/oportunidades"],
   ["Proyectos y tareas", "/crm/proyectos"],
   ["Cotizaciones y facturas", "/crm/cotizaciones"],
+  ["Portal de clientes", "/crm/clientes"],
 ] as const
 
 export function CrmShell({

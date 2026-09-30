@@ -1,8 +1,8 @@
 # CRM de USERS y operación aislada de clientes
 
-Estado: alcance aprobado el 30 de septiembre de 2026. Este documento es la
-fuente de verdad para el siguiente desarrollo; no se aplican migraciones ni se
-crean bases nuevas sólo por existir este plan.
+Estado: CRM interno V1 y Portal USERS V1 entregados el 30 de septiembre de
+2026. Este documento es la fuente de verdad para la siguiente fase; no se
+crean bases nuevas ni consolas operativas sólo por existir este plan.
 
 ## Dos superficies, dos responsabilidades
 
@@ -55,7 +55,10 @@ pero no comparte sus tablas `gym_*` con las consolas de clientes ni con ADA.
 1. CRM interno V1: empresas, contactos, oportunidades, proyectos, notas,
    tareas, cotizaciones y facturas de USERS.
 2. Portal USERS V1: resumen de cuenta, proyectos, entregables, solicitudes,
-   facturas y enlaces seguros a cada consola del cliente.
+   facturas y enlaces seguros a cada consola del cliente. **Entregado:** las
+   consultas se aíslan por organización mediante RLS; el personal publica
+   contenido desde `/crm/clientes` y el cliente crea solicitudes desde su
+   cuenta.
 3. Foundation operativa V1: catálogo, clientes, cotizaciones y ventas para el
    primer negocio real que la adopte.
 4. Evaluación de extracción hacia ADA / USERS Core sólo con evidencia de dos
