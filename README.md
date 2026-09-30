@@ -140,14 +140,14 @@ Ruta `/analisis`. Es la entrada principal del funnel.
 Solo **nombres**. Los valores se configuran en Vercel → Settings → Environment
 Variables. Nunca se versionan: `.env*` está en `.gitignore`.
 
-### Requeridas para captura de leads
+### Requeridas para captura de leads y correos de acceso del CRM
 
 | Variable | Para qué |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Proyecto de Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Escritura server-side. **Nunca `NEXT_PUBLIC_`** |
-| `RESEND_API_KEY` | Envío de la notificación |
-| `RESEND_FROM` | Remitente verificado |
+| `RESEND_API_KEY` | Envío de notificaciones y activaciones del CRM |
+| `RESEND_FROM` | Remitente verificado; para CRM se recomienda `USERS <acceso@users.mx>` |
 | `NOTIFICATION_EMAIL` | Destinatario del aviso de lead |
 
 ### Requeridas para CRM y Client Console
@@ -158,6 +158,11 @@ Variables. Nunca se versionan: `.env*` está en `.gitignore`.
 | `SUPABASE_SECRET_KEY` | Invitaciones y conversión server-side |
 | `USERS_STAFF_EMAILS` | Lista explícita de personal con acceso al CRM |
 | `NEXT_PUBLIC_SITE_URL` | Retorno seguro de invitaciones |
+| `USERS_CRM_FROM` | Remitente de accesos del CRM, por ejemplo `USERS <acceso@users.mx>` |
+
+Las invitaciones iniciadas desde `/crm` se generan con Supabase y se entregan
+por Resend. Sus respuestas se dirigen a `hola@users.mx`; el reenvío entrante de
+esa dirección debe permanecer activo hacia el correo operativo de USERS.
 
 ### Opcionales
 

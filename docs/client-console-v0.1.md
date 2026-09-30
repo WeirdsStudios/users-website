@@ -1,13 +1,15 @@
 # USERS Client Console v0.1
 
-Estado: código validado localmente; **no desplegado ni aplicado a producción**.
+Estado: desplegado en producción. El CRM usa Resend para los correos de acceso;
+no depende del límite de envío de Supabase Auth.
 
 ## Alcance de la primera rebanada
 
 - acceso con Supabase Auth;
 - CRM restringido por `USERS_STAFF_EMAILS`;
 - conversión idempotente de un prospecto completado en organización;
-- invitación del propietario;
+- invitación del propietario desde `acceso@users.mx`, con respuestas a
+  `hola@users.mx`;
 - activación de la propia membresía;
 - cuenta del cliente limitada por RLS a sus organizaciones.
 
@@ -31,16 +33,15 @@ de ACTIIVA.
      anterior `NEXT_PUBLIC_SUPABASE_ANON_KEY`);
    - `SUPABASE_SECRET_KEY` (se acepta temporalmente
      `SUPABASE_SERVICE_ROLE_KEY`);
+   - `RESEND_API_KEY`, `RESEND_FROM` y
+     `USERS_CRM_FROM=USERS <acceso@users.mx>` (correo transaccional del CRM);
    - `USERS_STAFF_EMAILS` con correos separados por coma;
    - `NEXT_PUBLIC_SITE_URL=https://www.users.mx`.
 4. En Supabase Auth, autorizar `https://www.users.mx/auth/confirm` y las URLs de
    preview/local necesarias.
-5. Cambiar la plantilla **Invite user** para usar el flujo SSR:
-
-```text
-{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/cuenta/configurar
-```
-
+5. El CRM genera el enlace seguro con Supabase, pero lo entrega con Resend. No
+   hace falta activar SMTP personalizado ni cambiar las plantillas de correo de
+   Supabase para las invitaciones creadas desde `/crm`.
 6. Crear o confirmar al menos una cuenta de personal incluida en
    `USERS_STAFF_EMAILS`.
 7. Probar el flujo completo con un prospecto de prueba antes de convertir un

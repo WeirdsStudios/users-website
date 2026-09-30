@@ -39,7 +39,7 @@ async function sendAccountAccessEmail({
   kind: AccessEmailKind
 }): Promise<string | null> {
   const key = process.env.RESEND_API_KEY
-  const from = process.env.RESEND_FROM
+  const from = process.env.USERS_CRM_FROM ?? process.env.RESEND_FROM
   if (!key || !from) return "Resend no está configurado para el CRM."
 
   const business = escapeHtml(organizationName)
