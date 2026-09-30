@@ -1,0 +1,73 @@
+# CRM de USERS y operación aislada de clientes
+
+Estado: alcance aprobado el 30 de septiembre de 2026. Este documento es la
+fuente de verdad para el siguiente desarrollo; no se aplican migraciones ni se
+crean bases nuevas sólo por existir este plan.
+
+## Dos superficies, dos responsabilidades
+
+### CRM interno de USERS
+
+Vive en `products/users-website` y sólo lo usa personal autorizado de USERS.
+
+- leads y empresas;
+- contactos y oportunidades;
+- proyectos, notas y tareas;
+- cotizaciones y facturas de USERS.
+
+El CRM nunca guarda las ventas, clientes finales ni catálogo operativo de un
+negocio cliente.
+
+### Portal y consola del cliente
+
+El cliente entra desde `users.mx` para ver la relación con USERS: proyectos,
+entregables, solicitudes, facturas y soporte. Desde ahí accede a su consola
+operativa propia, construida sobre `USERS Client Foundation`.
+
+Cada consola pertenece a un solo negocio y conserva su propio repositorio,
+proyecto Supabase, Vercel y dominio. Allí se administran:
+
+- catálogo, precios, ofertas y contenido comercial conectado al sitio;
+- clientes finales;
+- cotizaciones;
+- ventas y, cuando corresponda, pagos;
+- usuarios y roles del equipo del negocio.
+
+Una consola no puede ver las tablas ni la base de otro negocio. RLS limita aún
+más el acceso dentro de la consola por usuario y rol.
+
+## Papel de WBTF Platform
+
+`USERS Core` conserva sólo los contratos horizontales: identidad,
+organizaciones, membresías, roles, invitaciones y patrones RLS. No absorbe
+ventas, productos ni reglas de negocio.
+
+`ADA` es el vertical WBTF de comercio/POS. La primera consola de cliente puede
+validar las capacidades comunes de catálogo, cotización y venta; sólo cuando
+ADA tenga un segundo consumidor real se extraen contratos reutilizables. No se
+rebautiza ni se copia una implementación de cliente al Core.
+
+`ACTIIVA` conserva membresías, reservas y reglas fitness. Puede adoptar Core,
+pero no comparte sus tablas `gym_*` con las consolas de clientes ni con ADA.
+
+## Orden de entrega
+
+1. CRM interno V1: empresas, contactos, oportunidades, proyectos, notas,
+   tareas, cotizaciones y facturas de USERS.
+2. Portal USERS V1: resumen de cuenta, proyectos, entregables, solicitudes,
+   facturas y enlaces seguros a cada consola del cliente.
+3. Foundation operativa V1: catálogo, clientes, cotizaciones y ventas para el
+   primer negocio real que la adopte.
+4. Evaluación de extracción hacia ADA / USERS Core sólo con evidencia de dos
+   consumidores; antes de eso, no se publica una abstracción prematura.
+
+## Límites explícitos
+
+- SSO entre `users.mx` y una Foundation no se promete todavía: los proyectos
+  Supabase separados tienen identidades separadas. Primero se diseña un puente
+  de identidad seguro; mientras tanto el portal ofrece acceso federado.
+- Editar una web sólo es posible si esa web consume datos de la consola (por
+  ejemplo, catálogo y ofertas). No se promete que un panel pueda modificar
+  arbitrariamente una web estática existente.
+- No se crean bases, dominios ni consolas por cliente hasta que haya un negocio
+  concreto para provisionar.
