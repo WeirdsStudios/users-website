@@ -11,6 +11,13 @@ const navigation = [
   { label: "Ventas", icon: "↗", suffix: "/ventas" },
 ]
 
+const relationship = [
+  { label: "Proyectos", icon: "□", anchor: "proyectos" },
+  { label: "Entregables", icon: "↓", anchor: "entregables" },
+  { label: "Facturas", icon: "▤", anchor: "facturas" },
+  { label: "Soporte", icon: "?", anchor: "soporte" },
+]
+
 export function BusinessSidebar({ businessName, slug }: { businessName: string; slug: string }) {
   const pathname = usePathname()
   const base = `/cuenta/${slug}/negocio`
@@ -33,6 +40,8 @@ export function BusinessSidebar({ businessName, slug }: { businessName: string; 
           const active = item.suffix ? pathname.startsWith(href) : pathname === base || pathname === `${base}/`
           return <Link className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${active ? "bg-[#4cfc0f] text-zinc-950" : "text-zinc-300 hover:bg-zinc-800 hover:text-white"}`} href={href} key={href}><span className="grid size-5 place-items-center text-base">{item.icon}</span>{item.label}</Link>
         })}
+        <p className="hidden px-3 pb-2 pt-6 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500 lg:block">Con USERS</p>
+        {relationship.map((item) => <Link className="flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white" href={`${base}#${item.anchor}`} key={item.anchor}><span className="grid size-5 place-items-center text-base">{item.icon}</span>{item.label}</Link>)}
       </nav>
       <div className="mt-auto hidden border-t border-zinc-800 p-4 lg:block"><Link className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white" href={`/cuenta/${slug}`}>← Volver a mi portal</Link></div>
     </aside>
