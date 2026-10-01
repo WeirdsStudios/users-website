@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase-admin"
 import { getSiteUrl } from "@/lib/site-url"
 
 export type ConvertLeadState = { ok?: boolean; message?: string }
+export type RegisterBusinessState = { ok?: boolean; message?: string }
 
 type AccessEmailKind = "invite" | "recovery"
 
@@ -187,4 +188,38 @@ export async function convertLeadToClient(
         ? `Cuenta vinculada y nuevo acceso enviado a ${ownerEmail} desde acceso@users.mx.`
       : `Cuenta creada y vinculada a ${ownerEmail}.`,
   }
+}
+
+/** Alta directa: para negocios que llegan por llamada, WhatsApp o referencia. */
+export async function registerBusiness(
+  _state: RegisterBusinessState,
+  formData: FormData
+): Promise<RegisterBusinessState> {
+  const staff = await requireStaffIdentity()
+  const organizationName = String(formData.get("organizationName") ?? "").trim().slice(0, 120)
+  const ownerEmail = normalizeMemberEmail(formData.get("ownerEmail"))
+  if (!organizationName || !ownerEmail) return { ok: false, message: "Escribe el negocio y el correo de su propietario." }
+  const supabase = createAdminClient()
+  let user = await findAuthUserByEmail(ownerEmail)
+  let createdForInvite = false
+  let accessEmailKind: AccessEmailKind | null = null
+  let actionLink: string | null = null
+  if (!user) {
+    const { data, error } = await supabase.auth.admin.generateLink({ type: "invite", email: ownerEmail, options: { redirectTo: `${getSiteUrl()}/cuenta/configurar` } })
+    if (error || !data.user || !data.properties?.action_link) return { ok: false, message: "No se pudo preparar la invitación." }
+    user = data.user; createdForInvite = true; accessEmailKind = "invite"; actionLink = data.properties.action_link
+  } else if (!user.email_confirmed_at && !user.last_sign_in_at) {
+    const { data, error } = await supabase.auth.admin.generateLink({ type: "recovery", email: ownerEmail, options: { redirectTo: `${getSiteUrl()}/cuenta/configurar` } })
+    if (error || !data.properties?.action_link) return { ok: false, message: "No se pudo preparar el acceso." }
+    accessEmailKind = "recovery"; actionLink = data.properties.action_link
+  }
+  if (accessEmailKind && actionLink) {
+    const deliveryError = await sendAccountAccessEmail({ email: ownerEmail, organizationName, actionLink, kind: accessEmailKind })
+    if (deliveryError) { if (createdForInvite) await supabase.auth.admin.deleteUser(user.id); return { ok: false, message: "No se pudo enviar el correo; el negocio no fue creado." } }
+  }
+  const ownerStatus = user.email_confirmed_at || user.last_sign_in_at ? "active" : "invited"
+  const { error } = await supabase.rpc("create_users_organization", { p_name: organizationName, p_slug: createOrganizationSlug(organizationName), p_owner_user_id: user.id, p_owner_status: ownerStatus, p_staff_user_id: staff.userId })
+  if (error) { if (createdForInvite) await supabase.auth.admin.deleteUser(user.id); return { ok: false, message: "No se pudo crear el negocio." } }
+  revalidatePath("/crm"); revalidatePath("/crm/leads"); revalidatePath("/crm/clientes")
+  return { ok: true, message: accessEmailKind ? `Negocio creado e invitación enviada a ${ownerEmail}.` : `Negocio creado y acceso vinculado a ${ownerEmail}.` }
 }

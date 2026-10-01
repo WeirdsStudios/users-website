@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { listAccountOrganizations } from "@/lib/account-auth"
 import { formatPortalMoney, getClientPortalData, PORTAL_DELIVERABLE_STATUS, PORTAL_PROJECT_STATUS } from "@/lib/client-portal"
-import { createSupportRequest, requestConsoleActivation } from "./actions"
+import { createSupportRequest } from "./actions"
 
 function date(value: string | null) {
   return value ? new Intl.DateTimeFormat("es-MX", { dateStyle: "medium" }).format(new Date(`${value}T12:00:00`)) : "Sin fecha definida"
@@ -19,8 +19,6 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
   if (!organization) notFound()
   const portal = await getClientPortalData(organization.id)
   const submitSupport = createSupportRequest.bind(null, organization.id, organization.slug)
-  const activateConsole = requestConsoleActivation.bind(null, organization.id, organization.slug)
-  const activationRequested = portal.support.some((request) => request.subject === "Activar consola operativa" && !["resolved", "closed"].includes(request.status))
 
   return (
     <main id="contenido" className="min-h-screen bg-zinc-100 px-5 py-7 text-zinc-950 sm:py-10">
@@ -41,7 +39,7 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
             ["Entregables", portal.deliverables.length, "Materiales y siguientes entregas"],
             ["Facturas", portal.invoices.length, "Documentos de tu relación con USERS"],
             ["Solicitudes", portal.support.length, "Conversaciones de soporte"],
-            ["Administración", portal.consoles.filter((console) => console.status === "active").length, "Catálogo, clientes, cotizaciones y ventas"],
+            ["Administración", 1, "Catálogo, clientes, cotizaciones y ventas"],
           ].map(([label, count, detail]) => (
             <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm" key={String(label)}>
               <p className="text-sm text-zinc-500">{label}</p><p className="mt-2 text-3xl font-bold">{count}</p><p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
@@ -80,9 +78,8 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
             <section className="rounded-2xl border border-zinc-200 bg-zinc-950 p-6 text-white shadow-sm">
               <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#4cfc0f]">Operación de tu negocio</p>
               <h2 className="mt-3 text-xl font-semibold">Administra tu negocio</h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">Aquí administras tu catálogo y ofertas, clientes finales, cotizaciones y ventas. Esta consola es exclusiva de tu negocio.</p>
-              {portal.consoles.map((console) => <a className="mt-4 flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950" href={console.url} key={console.id} rel="noreferrer" target="_blank"><span>{console.label}</span><span className="font-normal text-zinc-500">{console.status === "active" ? "Abrir administración →" : "En mantenimiento"}</span></a>)}
-              {!portal.consoles.length ? <><p className="mt-3 text-sm leading-6 text-zinc-300">Tu portal ya está listo. Activa tu consola exclusiva para administrar catálogo, cotizaciones y ventas.</p><form action={activateConsole} className="mt-4"><button className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-200" type="submit">{activationRequested ? "Solicitud de activación enviada" : "Activar administración"}</button></form></> : null}
+              <p className="mt-2 text-sm leading-6 text-zinc-300">Aquí administras tu catálogo y ofertas, clientes finales, cotizaciones y ventas. Tus datos son exclusivos de tu negocio.</p>
+              <Link className="mt-4 flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-200" href={`/cuenta/${organization.slug}/negocio`}><span>Administrar mi negocio</span><span className="font-normal text-zinc-500">Abrir →</span></Link>
             </section>
 
             <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">

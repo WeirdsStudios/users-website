@@ -85,3 +85,15 @@ pero no comparte sus tablas `gym_*` con las consolas de clientes ni con ADA.
 4. El portal muestra el acceso “Administra tu negocio”; éste abre solamente la
    consola de esa organización. Sus ventas, clientes y catálogo no pasan por
    la base compartida de USERS.
+# Consola operativa estándar
+
+Desde la migración `20260930020000_users_business_console_v1.sql`, cada
+organización de USERS tiene una consola operativa disponible por defecto en
+`/cuenta/{slug}/negocio`. No se provisionan proyectos Supabase ni despliegues
+por cliente: catálogo, clientes finales, cotizaciones y ventas usan tablas
+compartidas con `organization_id` y RLS basado en `organization_members`.
+
+El alta, sea desde un lead o desde **CRM → Leads → Registrar negocio**, crea
+la organización y al propietario, envía su invitación de acceso y deja lista
+la consola sin una activación manual. Las cuentas existentes adquieren el
+acceso en cuanto se aplique la migración.
