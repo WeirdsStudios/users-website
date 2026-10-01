@@ -1,11 +1,10 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { requireBusinessOrganization } from "@/lib/business-console"
+import { BusinessSidebar } from "./BusinessSidebar"
 
 export default async function BusinessLayout({ children, params }: { children: React.ReactNode; params: Promise<{slug:string}> }) {
   const { slug } = await params
   let organization
   try { organization = await requireBusinessOrganization(slug) } catch { notFound() }
-  const items = [["Resumen", `/cuenta/${slug}/negocio`], ["Catálogo", `/cuenta/${slug}/negocio/catalogo`], ["Clientes", `/cuenta/${slug}/negocio/clientes`], ["Cotizaciones", `/cuenta/${slug}/negocio/cotizaciones`], ["Ventas", `/cuenta/${slug}/negocio/ventas`]]
-  return <main className="min-h-screen bg-zinc-100 text-zinc-950"><header className="border-b border-zinc-200 bg-white"><div className="mx-auto max-w-6xl px-5 py-5"><Link href={`/cuenta/${slug}`} className="text-sm text-zinc-500 underline underline-offset-4">← Portal de {organization.name}</Link><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div><p className="font-mono text-xs uppercase tracking-[.18em] text-[#5a8500]">USERS · Administración</p><h1 className="mt-1 text-xl font-bold">{organization.name}</h1></div><nav className="flex flex-wrap gap-2">{items.map(([label, href])=><Link key={href} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-zinc-100" href={href}>{label}</Link>)}</nav></div></div></header><section className="mx-auto max-w-6xl px-5 py-8">{children}</section></main>
+  return <main className="min-h-screen bg-zinc-100 text-zinc-950 lg:flex"><BusinessSidebar businessName={organization.name} slug={slug} /><div className="min-w-0 flex-1"><header className="flex min-h-20 items-center justify-between border-b border-zinc-200 bg-white px-5 sm:px-8"><div><p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#5a8500]">USERS · Administración</p><p className="mt-1 text-sm text-zinc-500">Operación de {organization.name}</p></div><span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">Sistema activo</span></header><section className="mx-auto max-w-7xl px-5 py-7 sm:px-8 lg:px-10 lg:py-9">{children}</section></div></main>
 }
