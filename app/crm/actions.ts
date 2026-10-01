@@ -218,8 +218,29 @@ export async function registerBusiness(
     if (deliveryError) { if (createdForInvite) await supabase.auth.admin.deleteUser(user.id); return { ok: false, message: "No se pudo enviar el correo; el negocio no fue creado." } }
   }
   const ownerStatus = user.email_confirmed_at || user.last_sign_in_at ? "active" : "invited"
-  const { error } = await supabase.rpc("create_users_organization", { p_name: organizationName, p_slug: createOrganizationSlug(organizationName), p_owner_user_id: user.id, p_owner_status: ownerStatus, p_staff_user_id: staff.userId })
-  if (error) { if (createdForInvite) await supabase.auth.admin.deleteUser(user.id); return { ok: false, message: "No se pudo crear el negocio." } }
+  const baseSlug = createOrganizationSlug(organizationName)
+  let slug = baseSlug
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const { data } = await supabase.from("organizations").select("id").eq("slug", slug).maybeSingle()
+    if (!data) break
+    slug = `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`
+  }
+  const { data: organization, error: organizationError } = await supabase
+    .from("organizations")
+    .insert({ name: organizationName, slug, created_by: staff.userId })
+    .select("id")
+    .single()
+  if (organizationError || !organization) { if (createdForInvite) await supabase.auth.admin.deleteUser(user.id); return { ok: false, message: "No se pudo crear el negocio." } }
+  const { error: membershipError } = await supabase.from("organization_members").insert({
+    organization_id: organization.id, user_id: user.id, role: "owner", status: ownerStatus,
+    added_by: staff.userId, invited_at: ownerStatus === "invited" ? new Date().toISOString() : null,
+    activated_at: ownerStatus === "active" ? new Date().toISOString() : null,
+  })
+  if (membershipError) {
+    await supabase.from("organizations").delete().eq("id", organization.id)
+    if (createdForInvite) await supabase.auth.admin.deleteUser(user.id)
+    return { ok: false, message: "No se pudo vincular al propietario." }
+  }
   revalidatePath("/crm"); revalidatePath("/crm/leads"); revalidatePath("/crm/clientes")
   return { ok: true, message: accessEmailKind ? `Negocio creado e invitación enviada a ${ownerEmail}.` : `Negocio creado y acceso vinculado a ${ownerEmail}.` }
 }
