@@ -7,7 +7,7 @@ export default function AccessForm({
   next,
   initialMessage,
 }: {
-  next: "/cuenta" | "/crm"
+  next: "/cuenta" | "/admin"
   initialMessage?: string
 }) {
   const [state, action, pending] = useActionState(signIn, { message: initialMessage })

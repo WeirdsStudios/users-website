@@ -7,7 +7,7 @@ export default async function AccessPage({
   searchParams: Promise<{ next?: string; error?: string }>
 }) {
   const params = await searchParams
-  const next = params.next === "/crm" ? "/crm" : "/cuenta"
+  const next = params.next === "/admin" || params.next === "/crm" ? "/admin" : "/cuenta"
   const initialMessage = params.error === "enlace-invalido"
     ? "El enlace venció o ya fue utilizado. Solicita una nueva invitación."
     : undefined

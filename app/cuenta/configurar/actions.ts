@@ -23,7 +23,7 @@ export async function finishAccountSetup(
   // USERS staff accounts access the internal CRM and are not necessarily
   // members of a client organization. Client accounts continue below to
   // activate their pending organization membership.
-  if (isStaffEmail(identity.email)) redirect("/crm")
+  if (isStaffEmail(identity.email)) redirect("/admin")
 
   const { data, error: activationError } = await supabase.rpc(
     "activate_own_organization_memberships"

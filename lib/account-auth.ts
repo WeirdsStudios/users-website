@@ -41,7 +41,7 @@ export async function requireAccountIdentity(): Promise<AccountIdentity> {
 
 export async function requireStaffIdentity(): Promise<AccountIdentity> {
   const identity = await getAccountIdentity()
-  if (!identity) redirect("/acceso?next=/crm")
+  if (!identity) redirect("/acceso?next=/admin")
   if (!isStaffEmail(identity.email)) redirect("/cuenta")
   return identity
 }

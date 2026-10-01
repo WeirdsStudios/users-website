@@ -5,8 +5,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 export type AccessActionState = { message?: string }
 
-function safeDestination(value: FormDataEntryValue | null): "/cuenta" | "/crm" {
-  return value === "/crm" ? "/crm" : "/cuenta"
+function safeDestination(value: FormDataEntryValue | null): "/cuenta" | "/admin" {
+  return value === "/admin" || value === "/crm" ? "/admin" : "/cuenta"
 }
 
 export async function signIn(
